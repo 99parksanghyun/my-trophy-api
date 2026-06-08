@@ -89,7 +89,7 @@ async function requestAIText() {
 
   try {
     // 💡 CMD 창에 떴던 고정 변하지 않는 고유 영구 주소(Aliased)로 완벽하게 묶었습니다!
-    const response = await fetch('https://api-chi-jade-52.vercel.app/api/generate', {
+    const response = await fetch('/api/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ type: selectedType, target: selectedTarget, message: keywords, maxLength: selectedLength })
