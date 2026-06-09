@@ -1,4 +1,5 @@
-const { OpenAI } = require("openai");
+import OpenAI from "openai";
+
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export default async function handler(req, res) {
@@ -125,6 +126,7 @@ ${selectedExamples}
     });
     res.status(200).json({ text: completion.choices[0].message.content });
   } catch (error) {
+    console.error("OpenAI API Error:", error);
     res.status(500).json({ error: "AI 연결 실패" });
   }
 }
