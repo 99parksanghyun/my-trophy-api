@@ -18,7 +18,9 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
   
   try {
-    const { type, target, message, maxLength } = JSON.parse(req.body);
+    // 🚨 [500 에러 해결 핵심] 이중 파싱 에러 방지 처리
+    const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+    const { type, target, message, maxLength } = body;
     
     // =========================================================================
     // [상패다 명품 예시 문구 데이터베이스]
