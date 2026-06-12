@@ -5,20 +5,64 @@
   <title>상패다 문구 도우미</title>
   <style>
     :root { --navy: #1a2a44; --gold: #c5a059; }
-    body { background: #f4f4f5; font-family: 'Pretendard', sans-serif; padding: 20px; }
+    body { background: #f4f4f5; font-family: 'Pretendard', 'Malgun Gothic', sans-serif; padding: 20px; }
+    
     .container { max-width: 950px; margin: 0 auto; padding: 35px; background: #fff; border-top: 5px solid var(--navy); box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-radius: 0 0 8px 8px; }
-    h2 { color: var(--navy); text-align: center; margin-bottom: 25px; }
+    h2 { color: var(--navy); text-align: center; margin-bottom: 25px; letter-spacing: -1px; font-size: 22px; }
     .section-title { font-size: 14px; color: var(--navy); border-bottom: 2px solid var(--navy); padding-bottom: 5px; margin: 20px 0 10px 0; font-weight: bold; }
+    
     .btn-group { margin-bottom: 12px; }
-    button.cate-btn { padding: 7px 12px; margin: 2px; border: 1px solid #ddd; background: #fff; cursor: pointer; border-radius: 4px; font-size: 12.5px; transition: 0.3s; }
+    button.cate-btn, button.target-btn, button.len-btn { padding: 7px 12px; margin: 2px; border: 1px solid #ddd; background: #fff; cursor: pointer; border-radius: 4px; transition: 0.3s; font-size: 12.5px; }
     button.active { background: var(--navy); color: #fff; border-color: var(--navy); font-weight: bold; }
-    .vertical-input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; margin-bottom: 5px; }
-    textarea { width: 100%; height: 110px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; resize: none; box-sizing: border-box; }
-    .gen-btn { width: 100%; padding: 15px; background: var(--navy); color: gold; font-size: 16px; font-weight: bold; border: none; cursor: pointer; border-radius: 6px; margin-top: 20px; }
-    .result-scroll-box { margin-top: 25px; padding: 20px; background: #fafafa; border: 1px solid #ddd; border-radius: 6px; }
+    
+    .vertical-input { width: 100%; padding: 10px 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 13.5px; margin-bottom: 3px; }
+    textarea { width: 100%; height: 110px; padding: 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; resize: none; font-size: 13.5px; line-height: 1.5; }
+    .input-hint { display: block; font-size: 11px; color: #777; margin-bottom: 12px; margin-top: 1px; padding-left: 2px; }
+
+    .gen-btn { width: 100%; padding: 15px; background: var(--navy); color: gold; font-size: 16px; font-weight: bold; border: none; cursor: pointer; border-radius: 6px; margin-top: 20px; transition: 0.2s; }
+    .gen-btn:disabled { background: #555 !important; color: #aaa !important; cursor: not-allowed; }
+    
+    /* 결과창 틀 고정 높이 및 휠 스크롤바 바인딩 */
+    .result-scroll-box { 
+      margin-top: 25px; 
+      max-height: 540px; 
+      overflow-y: scroll;
+      border: 1px solid #e4e4e7;
+      border-radius: 6px;
+      background: #fafafa;
+      padding: 20px 10px 20px 20px;
+    }
+    
+    /* 우측 휠 스크롤바 커스텀 */
+    .result-scroll-box::-webkit-scrollbar { width: 10px; }
+    .result-scroll-box::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 6px; }
+    .result-scroll-box::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 6px; border: 2px solid #f1f1f1; }
+    .result-scroll-box::-webkit-scrollbar-thumb:hover { background: var(--navy); }
+    
     .result-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
-    .card { padding: 20px; border: 1px solid #eee; border-top: 4px solid var(--gold); background: #fff; }
-    .p-body { white-space: pre-wrap; line-height: 1.7; margin: 15px 0; font-size: 13px; }
+    @media (max-width: 768px) { .result-grid { grid-template-columns: 1fr; } } 
+    
+    .card { padding: 20px; border: 1px solid #eee; border-top: 4px solid var(--gold); background: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.02); border-radius: 4px; display: flex; flex-direction: column; justify-content: space-between; }
+    .card h4 { margin: 0 0 15px 0; color: var(--navy); border-bottom: 1px dashed #ddd; padding-bottom: 8px; font-size: 15px; text-align: center; }
+    
+    .trophy-preview { display: flex; flex-direction: column; flex-grow: 1; padding: 5px 0; }
+    .p-type { text-align: center; font-size: 17px; font-weight: bold; color: var(--navy); margin-bottom: 12px; letter-spacing: 2px; }
+    .p-receiver { text-align: right; font-size: 13.5px; font-weight: bold; color: #333; margin-bottom: 15px; padding-right: 5px; }
+    .p-body { line-height: 1.7; white-space: pre-wrap; font-size: 13px; color: #444; text-align: center; margin-bottom: 20px; letter-spacing: -0.5px; }
+    .p-date { text-align: center; font-size: 12.5px; color: #666; margin-bottom: 4px; }
+    .p-giver { text-align: center; font-size: 13.5px; font-weight: bold; color: #222; }
+
+    /* 두 개의 버튼을 하단에 나란히 배치하기 위한 박스 */
+    .card-btn-group { display: flex; gap: 6px; margin-top: 15px; }
+    .copy-btn { flex: 1; padding: 9px 5px; cursor: pointer; border-radius: 4px; font-size: 11.5px; font-weight: bold; transition: 0.2s; box-sizing: border-box; text-align: center; border: 1px solid #ddd; background: #fff; }
+    
+    /* 문구만 복사 (포인트 골드 스타일) */
+    .btn-only-body { background: #fff; color: var(--gold); border: 1px solid var(--gold); }
+    .btn-only-body:hover { background: var(--gold); color: #fff; }
+    
+    /* 전체 복사 (차분한 그레이 네이비 스타일) */
+    .btn-all-text { background: #f4f4f5; color: #444; border: 1px solid #ddd; }
+    .btn-all-text:hover { background: var(--navy); color: #fff; border-color: var(--navy); }
   </style>
 </head>
 <body>
@@ -39,56 +83,204 @@
     <button class="cate-btn" onclick="selectType(this, '기타문구')">기타문구</button>
   </div>
 
-  <div class="section-title">3. 받는 사람</div>
-  <input type="text" id="ai-receiver" class="vertical-input">
-  <div class="section-title">4. 본문 상황 및 키워드</div>
-  <textarea id="ai-keywords"></textarea>
+  <div class="section-title">2. 대상 분류</div>
+  <div id="target-group" class="btn-group">
+    <button class="target-btn active" onclick="selectTarget(this, '전체')">전체</button>
+    <button class="target-btn" onclick="selectTarget(this, '회사')">회사</button>
+    <button class="target-btn" onclick="selectTarget(this, '학교')">학교</button>
+    <button class="target-btn" onclick="selectTarget(this, '단체')">단체</button>
+    <button class="target-btn" onclick="selectTarget(this, '관공서')">관공서</button>
+    <button class="target-btn" onclick="selectTarget(this, '가족')">가족</button>
+    <button class="target-btn" onclick="selectTarget(this, '기타')">기타</button>
+  </div>
+
+  <div class="section-title">3. 받는 사람 (수하인)</div>
+  <input type="text" id="ai-receiver" class="vertical-input" placeholder="예) 이사 홍길동 / 상무 김철수 / 어머니 김정숙">
+  <span class="input-hint">* 상패 맨 위 상단에 크게 들어갈 이름을 적어주세요.</span>
+
+  <div class="section-title">4. 본문 상황 및 키워드 입력</div>
+  <textarea id="ai-keywords" placeholder="예) 정년퇴직, 지난 20년간의 헌신과 따뜻한 리더십에 깊이 감사드립니다."></textarea>
+  <span class="input-hint">* 핵심적인 들어갈 핵심 에피소드나 키워드를 서술형으로 자유롭게 적어주세요.</span>
+
   <div class="section-title">5. 수여 날짜</div>
-  <input type="text" id="ai-date" class="vertical-input">
-  <div class="section-title">6. 주는 사람</div>
-  <input type="text" id="ai-giver" class="vertical-input">
-  
+  <input type="text" id="ai-date" class="vertical-input" placeholder="예) 2026년 6월 12일 / 2026. 06. 12">
+  <span class="input-hint">* 비워두시면 자동으로 오늘 날짜가 적용됩니다.</span>
+
+  <div class="section-title">6. 주는 사람 (수여자)</div>
+  <input type="text" id="ai-giver" class="vertical-input" placeholder="예) 주식회사 상패다 임직원 일동 / 삼남매 올림">
+  <span class="input-hint">* 상패 맨 아래 하단에 직인과 함께 각인될 단체명이나 성함을 적어주세요.</span>
+
+  <div class="section-title">7. 추천 본문 글자수 고르기</div>
+  <div id="len-group" class="btn-group">
+    <button class="len-btn active" onclick="selectLen(this, '200')">200자 내외 (풍성하게)</button>
+    <button class="len-btn" onclick="selectLen(this, '150')">150자 내외 (적당하게)</button>
+    <button class="len-btn" onclick="selectLen(this, '100')">100자 내외 (심플하게)</button>
+  </div>
+
   <button id="submit-btn" class="gen-btn" onclick="requestAIText()">AI 문구 생성하기</button>
 
   <div id="result-area" class="result-scroll-box" style="display:none;">
-    <div class="result-grid" id="card-container"></div>
+    <div class="result-grid">
+      <div class="card" id="card-formal">
+        <h4>정중한 버전</h4>
+        <div class="trophy-preview">
+          <div class="p-type" id="type-formal"></div>
+          <div class="p-receiver" id="rcv-formal"></div>
+          <div class="p-body" id="body-formal"></div>
+          <div class="p-date" id="date-formal"></div>
+          <div class="p-giver" id="gvr-formal"></div>
+        </div>
+        <div class="card-btn-group">
+          <button class="copy-btn btn-only-body" onclick="copyOnlyBody('formal')">✨ 문구만 복사</button>
+          <button class="copy-btn btn-all-text" onclick="copyAllText('formal')">📋 전체 복사</button>
+        </div>
+      </div>
+
+      <div class="card" id="card-touching">
+        <h4>감동적인 버전</h4>
+        <div class="trophy-preview">
+          <div class="p-type" id="type-touching"></div>
+          <div class="p-receiver" id="rcv-touching"></div>
+          <div class="p-body" id="body-touching"></div>
+          <div class="p-date" id="date-touching"></div>
+          <div class="p-giver" id="gvr-touching"></div>
+        </div>
+        <div class="card-btn-group">
+          <button class="copy-btn btn-only-body" onclick="copyOnlyBody('touching')">✨ 문구만 복사</button>
+          <button class="copy-btn btn-all-text" onclick="copyAllText('touching')">📋 전체 복사</button>
+        </div>
+      </div>
+
+      <div class="card" id="card-creative">
+        <h4>개성적인 버전</h4>
+        <div class="trophy-preview">
+          <div class="p-type" id="type-creative"></div>
+          <div class="p-receiver" id="rcv-creative"></div>
+          <div class="p-body" id="body-creative"></div>
+          <div class="p-date" id="date-creative"></div>
+          <div class="p-giver" id="gvr-creative"></div>
+        </div>
+        <div class="card-btn-group">
+          <button class="copy-btn btn-only-body" onclick="copyOnlyBody('creative')">✨ 문구만 복사</button>
+          <button class="copy-btn btn-all-text" onclick="copyAllText('creative')">📋 전체 복사</button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
 <script>
 let selectedType = "감사패";
-function selectType(btn, val) { selectedType = val; document.querySelectorAll('.cate-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
+let selectedTarget = "전체";
+let selectedLength = "200";
+
+function selectType(btn, val) { document.querySelectorAll('#type-group .cate-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); selectedType = val; }
+function selectTarget(btn, val) { document.querySelectorAll('#target-group .target-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); selectedTarget = val; }
+function selectLen(btn, val) { document.querySelectorAll('#len-group .len-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); selectedLength = val; }
 
 async function requestAIText() {
+  const keywords = document.getElementById('ai-keywords').value;
+  const receiverInput = document.getElementById('ai-receiver').value.trim();
+  const giverInput = document.getElementById('ai-giver').value.trim();
+  let dateInput = document.getElementById('ai-date').value.trim();
+
+  if (!receiverInput) { alert('받는 사람 성함 또는 직함을 입력해 주세요!'); return; }
+  if (!keywords.trim()) { alert('상황이나 키워드를 입력해 주세요!'); return; }
+  if (!giverInput) { alert('주는 사람을 입력해 주세요!'); return; }
+  
+  if (!dateInput) {
+    const today = new Date();
+    dateInput = `${today.getFullYear()}년 ${today.getMonth() + 1}월 ${today.getDate()}일`;
+  }
+
+  // 🔒 [안전 조치] 생성 버튼 글자를 바꾸고 비활성화하여 중복 클릭 원천 차단
   const submitBtn = document.getElementById('submit-btn');
-  submitBtn.disabled = true; submitBtn.innerText = "생성 중...";
+  submitBtn.disabled = true;
+  submitBtn.innerText = "🤖 문구를 생성하고 있습니다 (3~6초 소요)...";
+
   try {
-    const res = await fetch('/api/generate', { 
-      method: 'POST', 
-      headers: {'Content-Type': 'application/json'}, 
+    const response = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
         type: selectedType, 
-        receiver: document.getElementById('ai-receiver').value,
-        message: document.getElementById('ai-keywords').value,
-        date: document.getElementById('ai-date').value,
-        giver: document.getElementById('ai-giver').value
-      }) 
+        target: selectedTarget, 
+        message: keywords, 
+        maxLength: selectedLength,
+        receiver: receiverInput,
+        date: dateInput,
+        giver: giverInput
+      })
     });
-    const data = await res.json();
-    const container = document.getElementById('card-container');
-    container.innerHTML = "";
-    ['formal', 'touching', 'creative'].forEach(v => {
+    
+    if (!response.ok) throw new Error('API 서버 에러');
+    const data = await response.json();
+    
+    const versions = ['formal', 'touching', 'creative'];
+    versions.forEach(v => {
+      document.getElementById(`type-${v}`).innerText = selectedType;
+      document.getElementById(`rcv-${v}`).innerText = receiverInput;
+      document.getElementById(`date-${v}`).innerText = dateInput;
+      document.getElementById(`gvr-${v}`).innerText = giverInput;
+
       let rawText = data[v] || "";
+      
       if (selectedType === "학위패") {
-        const m = rawText.match(/(논문명:|논문제목:|Title:)\s*(.*)/i);
-        if (m) rawText = m[0] + "\n\n" + rawText.replace(m[0], "").trim();
+        document.getElementById(`body-${v}`).innerText = rawText.trim();
+      } else {
+        rawText = rawText.replace(selectedType, "").replace(receiverInput, "").replace(dateInput, "").replace(giverInput, "");
+        document.getElementById(`body-${v}`).innerText = rawText.trim();
       }
-      container.innerHTML += `<div class="card"><h4>${v} 버전</h4><div style="font-weight:bold;">${selectedType}</div><div style="text-align:right;">${document.getElementById('ai-receiver').value}</div><div class="p-body">${rawText}</div><div style="text-align:center;">${document.getElementById('ai-date').value}</div><div style="text-align:center;">${document.getElementById('ai-giver').value}</div><button onclick="copyText(this)">전체 복사</button></div>`;
     });
+
     document.getElementById('result-area').style.display = 'block';
-  } finally { submitBtn.disabled = false; submitBtn.innerText = "AI 문구 생성하기"; }
+
+  } catch (e) { 
+    console.error(e);
+    alert('AI 연산 중 일시적인 지연이 발생했습니다. 잠시 후 다시 시도해 주세요.'); 
+  } finally {
+    // 🔓 처리가 완료되면 버튼을 다시 활성화 상태로 롤백
+    submitBtn.disabled = false;
+    submitBtn.innerText = "AI 문구 생성하기";
+  }
 }
-function copyText(btn) { navigator.clipboard.writeText(btn.parentElement.innerText.replace('전체 복사', '')); alert("복사 완료!"); }
+
+function copyOnlyBody(id) {
+  const bodyText = document.getElementById(`body-${id}`).innerText.trim();
+  executeCopy(bodyText, '추천 본문 문구만 깔끔하게 복사되었습니다!\n주문서 본문 칸에 바로 붙여넣으세요.');
+}
+
+function copyAllText(id) {
+  const type = document.getElementById(`type-${id}`).innerText.trim();
+  const rcv = document.getElementById(`rcv-${id}`).innerText.trim();
+  const body = document.getElementById(`body-${id}`).innerText.trim();
+  const date = document.getElementById(`date-${id}`).innerText.trim();
+  const gvr = document.getElementById(`gvr-${id}`).innerText.trim();
+  
+  const fullText = `${type}\n\n${rcv}\n\n${body}\n\n${date}\n${gvr}`;
+  executeCopy(fullText, '상패 전체 시안 서식이 줄바꿈을 포함하여 통째로 복사되었습니다!');
+}
+
+function executeCopy(text, successMsg) {
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.style.top = '0';
+  textarea.style.left = '0';
+  textarea.style.position = 'fixed';
+  document.body.appendChild(textarea);
+  textarea.focus();
+  textarea.select();
+  
+  try {
+    document.execCommand('copy');
+    alert(successMsg);
+  } catch (err) {
+    navigator.clipboard.writeText(text).then(() => {
+      alert(successMsg);
+    });
+  }
+  document.body.removeChild(textarea);
+}
 </script>
 </body>
 </html>
