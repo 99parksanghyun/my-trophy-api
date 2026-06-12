@@ -225,12 +225,10 @@ async function requestAIText() {
 
       let rawText = data[v] || "";
       
-      if (selectedType === "학위패") {
-        document.getElementById(`body-${v}`).innerText = rawText.trim();
-      } else {
-        rawText = rawText.replace(selectedType, "").replace(receiverInput, "").replace(dateInput, "").replace(giverInput, "");
-        document.getElementById(`body-${v}`).innerText = rawText.trim();
-      }
+      // 모든 상패 종류에서 외부에 별도로 들어가는 상/하단 정보 고정 정보(종류, 받는사람, 날짜, 주는사람)를 본문 영역에서 도려내어 중복 노출을 방지합니다.
+      // 학위패일 경우 내부에 세팅된 '논문명:' 구조가 온전히 유지될 수 있도록 정상 필터링 처리합니다.
+      rawText = rawText.replace(selectedType, "").replace(receiverInput, "").replace(dateInput, "").replace(giverInput, "");
+      document.getElementById(`body-${v}`).innerText = rawText.trim();
     });
 
     document.getElementById('result-area').style.display = 'block';
