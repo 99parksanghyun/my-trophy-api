@@ -20,6 +20,23 @@
 
     .gen-btn { width: 100%; padding: 15px; background: var(--navy); color: gold; font-size: 16px; font-weight: bold; border: none; cursor: pointer; border-radius: 6px; margin-top: 20px; }
     
+    /* ⏳ 100% 차단형 전체 화면 로딩 마스크 */
+    #loading-mask {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(26, 42, 68, 0.85); /* 네이비 톤 투명 배경 */
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      z-index: 9999; color: #fff; font-family: sans-serif;
+    }
+    .spinner {
+      width: 50px; height: 50px;
+      border: 5px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%; border-top-color: gold;
+      animation: spin 1s ease-in-out infinite; margin-bottom: 20px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { font-size: 18px; font-weight: bold; letter-spacing: -0.5px; text-align: center; line-height: 1.6; }
+    .loading-sub { font-size: 13px; color: #ccc; margin-top: 8px; }
+
     /* 결과창 틀 고정 높이 및 휠 스크롤바 바인딩 */
     .result-scroll-box { 
       margin-top: 25px; 
@@ -64,6 +81,12 @@
   </style>
 </head>
 <body>
+
+<div id="loading-mask" style="display: none;">
+  <div class="spinner"></div>
+  <div class="loading-text">상패다 AI가 문구를 열심히 장인처럼 깎고 있습니다...</div>
+  <div class="loading-sub">품격 있는 문장 조합을 위해 약 3~6초가 소요됩니다. 잠시만 기다려 주세요.</div>
+</div>
 
 <div class="container">
   <h2>상패다 문구 도우미</h2>
@@ -118,171 +141,4 @@
   <button class="gen-btn" onclick="requestAIText()">AI 문구 생성하기</button>
 
   <div id="result-area" class="result-scroll-box" style="display:none;">
-    <div class="result-grid">
-      <!-- 정중한 버전 -->
-      <div class="card" id="card-formal">
-        <h4>정중한 버전</h4>
-        <div class="trophy-preview">
-          <div class="p-type" id="type-formal"></div>
-          <div class="p-receiver" id="rcv-formal"></div>
-          <div class="p-body" id="body-formal">🤖 문장을 빌드하고 있습니다...</div>
-          <div class="p-date" id="date-formal"></div>
-          <div class="p-giver" id="gvr-formal"></div>
-        </div>
-        <div class="card-btn-group">
-          <button class="copy-btn btn-only-body" onclick="copyOnlyBody('formal')">✨ 문구만 복사</button>
-          <button class="copy-btn btn-all-text" onclick="copyAllText('formal')">📋 전체 복사</button>
-        </div>
-      </div>
-
-      <!-- 감동적인 버전 -->
-      <div class="card" id="card-touching">
-        <h4>감동적인 버전</h4>
-        <div class="trophy-preview">
-          <div class="p-type" id="type-touching"></div>
-          <div class="p-receiver" id="rcv-touching"></div>
-          <div class="p-body" id="body-touching">🤖 문장을 빌드하고 있습니다...</div>
-          <div class="p-date" id="date-touching"></div>
-          <div class="p-giver" id="gvr-touching"></div>
-        </div>
-        <div class="card-btn-group">
-          <button class="copy-btn btn-only-body" onclick="copyOnlyBody('touching')">✨ 문구만 복사</button>
-          <button class="copy-btn btn-all-text" onclick="copyAllText('touching')">📋 전체 복사</button>
-        </div>
-      </div>
-
-      <!-- 개성적인 버전 -->
-      <div class="card" id="card-creative">
-        <h4>개성적인 버전</h4>
-        <div class="trophy-preview">
-          <div class="p-type" id="type-creative"></div>
-          <div class="p-receiver" id="rcv-creative"></div>
-          <div class="p-body" id="body-creative">🤖 문장을 빌드하고 있습니다...</div>
-          <div class="p-date" id="date-creative"></div>
-          <div class="p-giver" id="gvr-creative"></div>
-        </div>
-        <div class="card-btn-group">
-          <button class="copy-btn btn-only-body" onclick="copyOnlyBody('creative')">✨ 문구만 복사</button>
-          <button class="copy-btn btn-all-text" onclick="copyAllText('creative')">📋 전체 복사</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script>
-let selectedType = "감사패";
-let selectedTarget = "전체";
-let selectedLength = "200";
-
-function selectType(btn, val) { document.querySelectorAll('#type-group .cate-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); selectedType = val; }
-function selectTarget(btn, val) { document.querySelectorAll('#target-group .target-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); selectedTarget = val; }
-function selectLen(btn, val) { document.querySelectorAll('#len-group .len-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); selectedLength = val; }
-
-async function requestAIText() {
-  const keywords = document.getElementById('ai-keywords').value;
-  const receiverInput = document.getElementById('ai-receiver').value.trim();
-  const giverInput = document.getElementById('ai-giver').value.trim();
-  let dateInput = document.getElementById('ai-date').value.trim();
-
-  if (!receiverInput) { alert('받는 사람 성함 또는 직함을 입력해 주세요!'); return; }
-  if (!keywords.trim()) { alert('상황이나 키워드를 입력해 주세요!'); return; }
-  if (!giverInput) { alert('주는 사람을 입력해 주세요!'); return; }
-  
-  if (!dateInput) {
-    const today = new Date();
-    dateInput = `${today.getFullYear()}년 ${today.getMonth() + 1}월 ${today.getDate()}일`;
-  }
-
-  const resultArea = document.getElementById('result-area');
-  resultArea.style.display = 'block';
-  
-  const versions = ['formal', 'touching', 'creative'];
-  versions.forEach(v => {
-    document.getElementById(`type-${v}`).innerText = selectedType;
-    document.getElementById(`rcv-${v}`).innerText = receiverInput;
-    document.getElementById(`body-${v}`).innerText = 'AI가 실제 상패 레이아웃에 맞춰 본문을 작성 중입니다...';
-    document.getElementById(`date-${v}`).innerText = dateInput;
-    document.getElementById(`gvr-${v}`).innerText = giverInput;
-  });
-
-  try {
-    const response = await fetch('/api/generate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        type: selectedType, 
-        target: selectedTarget, 
-        message: keywords, 
-        maxLength: selectedLength,
-        receiver: receiverInput,
-        date: dateInput,
-        giver: giverInput
-      })
-    });
-    
-    if (!response.ok) throw new Error('API 서버 에러');
-    const data = await response.json();
-    
-    versions.forEach(v => {
-      let rawText = data[v] || "";
-      
-      // [★ 학위패 필터 예외 처리 적용 완료]
-      if (selectedType === "학위패") {
-        // 학위패일 때는 AI가 생성한 [논문명 + 본문] 줄바꿈 서식을 훼손하지 않고 그대로 노출합니다.
-        document.getElementById(`body-${v}`).innerText = rawText.trim();
-      } else {
-        // 일반 상패 종류일 때만 기존처럼 중복 텍스트들을 지우고 순수 본문만 보여줍니다.
-        rawText = rawText.replace(selectedType, "").replace(receiverInput, "").replace(dateInput, "").replace(giverInput, "");
-        document.getElementById(`body-${v}`).innerText = rawText.trim();
-      }
-    });
-
-  } catch (e) { 
-    console.error(e);
-    alert('AI 문구 생성 중 문제가 발생했습니다. 다시 한번 시도해 주세요.'); 
-  }
-}
-
-// 1. 오직 알맹이 문구만 쏙 빼서 복사하는 함수 (수동 줄바꿈 없는 순수 텍스트 버전)
-function copyOnlyBody(id) {
-  const bodyText = document.getElementById(`body-${id}`).innerText.trim();
-  executeCopy(bodyText, '추천 본문 문구만 깔끔하게 복사되었습니다!\n주문서 본문 칸에 바로 붙여넣으세요.');
-}
-
-// 2. 전체 레이아웃을 통째로 줄바꿈 보존하여 복사하는 함수
-function copyAllText(id) {
-  const type = document.getElementById(`type-${id}`).innerText.trim();
-  const rcv = document.getElementById(`rcv-${id}`).innerText.trim();
-  const body = document.getElementById(`body-${id}`).innerText.trim();
-  const date = document.getElementById(`date-${id}`).innerText.trim();
-  const gvr = document.getElementById(`gvr-${id}`).innerText.trim();
-  
-  const fullText = `${type}\n\n${rcv}\n\n${body}\n\n${date}\n${gvr}`;
-  executeCopy(fullText, '상패 전체 시안 서식이 줄바꿈을 포함하여 통째로 복사되었습니다!');
-}
-
-// 공통 클립보드 복사 실행 엔진
-function executeCopy(text, successMsg) {
-  const textarea = document.createElement('textarea');
-  textarea.value = text;
-  textarea.style.top = '0';
-  textarea.style.left = '0';
-  textarea.style.position = 'fixed';
-  document.body.appendChild(textarea);
-  textarea.focus();
-  textarea.select();
-  
-  try {
-    document.execCommand('copy');
-    alert(successMsg);
-  } catch (err) {
-    navigator.clipboard.writeText(text).then(() => {
-      alert(successMsg);
-    });
-  }
-  document.body.removeChild(textarea);
-}
-</script>
-</body>
-</html>
+    <div class="
