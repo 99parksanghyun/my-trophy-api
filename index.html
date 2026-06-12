@@ -5,48 +5,19 @@
   <title>상패다 문구 도우미</title>
   <style>
     :root { --navy: #1a2a44; --gold: #c5a059; }
-    body { background: #f4f4f5; font-family: 'Pretendard', 'Malgun Gothic', sans-serif; padding: 20px; }
-    
-    .container { max-width: 950px; margin: 0 auto; padding: 35px; background: #fff; border-top: 5px solid var(--navy); box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-radius: 0 0 8px 8px; }
-    h2 { color: var(--navy); text-align: center; margin-bottom: 25px; letter-spacing: -1px; font-size: 22px; }
+    body { background: #f4f4f5; font-family: 'Pretendard', sans-serif; padding: 20px; }
+    .container { max-width: 950px; margin: 0 auto; padding: 35px; background: #fff; border-top: 5px solid var(--navy); }
+    h2 { color: var(--navy); text-align: center; margin-bottom: 25px; }
     .section-title { font-size: 14px; color: var(--navy); border-bottom: 2px solid var(--navy); padding-bottom: 5px; margin: 20px 0 10px 0; font-weight: bold; }
-    
     .btn-group { margin-bottom: 12px; }
-    button.cate-btn, button.target-btn, button.len-btn { padding: 7px 12px; margin: 2px; border: 1px solid #ddd; background: #fff; cursor: pointer; border-radius: 4px; transition: 0.3s; font-size: 12.5px; }
-    button.active { background: var(--navy); color: #fff; border-color: var(--navy); font-weight: bold; }
-    
-    .vertical-input { width: 100%; padding: 10px 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 13.5px; margin-bottom: 3px; }
-    textarea { width: 100%; height: 110px; padding: 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; resize: none; font-size: 13.5px; line-height: 1.5; }
-    .input-hint { display: block; font-size: 11px; color: #777; margin-bottom: 12px; margin-top: 1px; padding-left: 2px; }
-
-    .gen-btn { width: 100%; padding: 15px; background: var(--navy); color: gold; font-size: 16px; font-weight: bold; border: none; cursor: pointer; border-radius: 6px; margin-top: 20px; transition: 0.2s; }
-    .gen-btn:disabled { background: #555 !important; color: #aaa !important; cursor: not-allowed; }
-    
-    .result-scroll-box { margin-top: 25px; max-height: 600px; overflow-y: scroll; border: 1px solid #e4e4e7; border-radius: 6px; background: #fafafa; padding: 20px 10px 20px 20px; }
-    .result-scroll-box::-webkit-scrollbar { width: 10px; }
-    .result-scroll-box::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 6px; }
-    .result-scroll-box::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 6px; border: 2px solid #f1f1f1; }
-    .result-scroll-box::-webkit-scrollbar-thumb:hover { background: var(--navy); }
-    
-    .result-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
-    @media (max-width: 768px) { .result-grid { grid-template-columns: 1fr; } } 
-    
-    .card { padding: 20px; border: 1px solid #eee; border-top: 4px solid var(--gold); background: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.02); border-radius: 4px; display: flex; flex-direction: column; justify-content: space-between; }
-    .card h4 { margin: 0 0 15px 0; color: var(--navy); border-bottom: 1px dashed #ddd; padding-bottom: 8px; font-size: 15px; text-align: center; }
-    
-    .trophy-preview { display: flex; flex-direction: column; flex-grow: 1; padding: 5px 0; }
-    .p-type { text-align: center; font-size: 17px; font-weight: bold; color: var(--navy); margin-bottom: 12px; letter-spacing: 2px; }
-    .p-receiver { text-align: center; font-size: 16px; font-weight: bold; color: #333; margin-bottom: 20px; }
-    .p-body { line-height: 1.7; white-space: pre-wrap; font-size: 13px; color: #444; text-align: center; margin-bottom: 20px; letter-spacing: -0.5px; }
-    .p-date { text-align: center; font-size: 12.5px; color: #666; margin-bottom: 4px; }
-    .p-giver { text-align: center; font-size: 13.5px; font-weight: bold; color: #222; }
-
-    .card-btn-group { display: flex; gap: 6px; margin-top: 15px; }
-    .copy-btn { flex: 1; padding: 9px 5px; cursor: pointer; border-radius: 4px; font-size: 11.5px; font-weight: bold; transition: 0.2s; text-align: center; border: 1px solid #ddd; background: #fff; }
-    .btn-only-body { background: #fff; color: var(--gold); border: 1px solid var(--gold); }
-    .btn-only-body:hover { background: var(--gold); color: #fff; }
-    .btn-all-text { background: #f4f4f5; color: #444; border: 1px solid #ddd; }
-    .btn-all-text:hover { background: var(--navy); color: #fff; border-color: var(--navy); }
+    button { padding: 8px 14px; margin: 2px; border: 1px solid #ddd; background: #fff; cursor: pointer; border-radius: 4px; font-size: 13px; }
+    button.active { background: var(--navy); color: #fff; }
+    .vertical-input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; margin-bottom: 10px; }
+    textarea { width: 100%; height: 100px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; resize: none; }
+    .gen-btn { width: 100%; padding: 15px; background: var(--navy); color: gold; font-weight: bold; border: none; cursor: pointer; margin-top: 20px; }
+    .result-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-top: 20px; }
+    .card { padding: 20px; border: 1px solid #eee; border-top: 4px solid var(--gold); background: #fff; }
+    .p-body { white-space: pre-wrap; margin: 15px 0; line-height: 1.6; }
   </style>
 </head>
 <body>
@@ -56,103 +27,73 @@
   <div class="section-title">1. 상패 종류</div>
   <div id="type-group" class="btn-group">
     <button class="cate-btn active" onclick="selectType(this, '감사패')">감사패</button>
-    <button class="cate-btn" onclick="selectType(this, '공로패')">공로패</button>
-    <button class="cate-btn" onclick="selectType(this, '기념패')">기념패</button>
     <button class="cate-btn" onclick="selectType(this, '학위패')">학위패</button>
-    <button class="cate-btn" onclick="selectType(this, '재직기념패')">재직기념패</button>
-    <button class="cate-btn" onclick="selectType(this, '표창패')">표창패</button>
-    <button class="cate-btn" onclick="selectType(this, '교회상패')">교회상패</button>
-    <button class="cate-btn" onclick="selectType(this, '위촉패')">위촉패</button>
-    <button class="cate-btn" onclick="selectType(this, '기타문구')">기타문구</button>
   </div>
-  <div class="section-title">2. 대상 분류</div>
-  <div id="target-group" class="btn-group">
-    <button class="target-btn active" onclick="selectTarget(this, '전체')">전체</button>
-    <button class="target-btn" onclick="selectTarget(this, '회사')">회사</button>
-    <button class="target-btn" onclick="selectTarget(this, '학교')">학교</button>
-    <button class="target-btn" onclick="selectTarget(this, '단체')">단체</button>
-    <button class="target-btn" onclick="selectTarget(this, '관공서')">관공서</button>
-    <button class="target-btn" onclick="selectTarget(this, '가족')">가족</button>
-    <button class="target-btn" onclick="selectTarget(this, '기타')">기타</button>
-  </div>
-  <div class="section-title">3. 받는 사람 (수하인)</div>
-  <input type="text" id="ai-receiver" class="vertical-input" placeholder="예) 이사 홍길동 / 상무 김철수 / 어머니 김정숙">
-  <div class="section-title">4. 본문 상황 및 키워드 입력</div>
-  <textarea id="ai-keywords" placeholder="예) 정년퇴직, 지난 20년간의 헌신과 따뜻한 리더십에 깊이 감사드립니다."></textarea>
-  <div class="section-title">5. 수여 날짜</div>
-  <input type="text" id="ai-date" class="vertical-input" placeholder="예) 2026년 6월 12일 / 2026. 06. 12">
-  <div class="section-title">6. 주는 사람 (수여자)</div>
-  <input type="text" id="ai-giver" class="vertical-input" placeholder="예) 주식회사 상패다 임직원 일동 / 삼남매 올림">
-  <div class="section-title">7. 추천 본문 글자수 고르기</div>
-  <div id="len-group" class="btn-group">
-    <button class="len-btn active" onclick="selectLen(this, '200')">200자 내외 (풍성하게)</button>
-    <button class="len-btn" onclick="selectLen(this, '150')">150자 내외 (적당하게)</button>
-    <button class="len-btn" onclick="selectLen(this, '100')">100자 내외 (심플하게)</button>
-  </div>
+  <input type="text" id="ai-receiver" class="vertical-input" placeholder="받는 사람">
+  <textarea id="ai-keywords" placeholder="본문 내용"></textarea>
+  <input type="text" id="ai-date" class="vertical-input" placeholder="날짜">
+  <input type="text" id="ai-giver" class="vertical-input" placeholder="주는 사람">
+  
   <button id="submit-btn" class="gen-btn" onclick="requestAIText()">AI 문구 생성하기</button>
 
-  <div id="result-area" class="result-scroll-box" style="display:none;">
-    <div class="result-grid">
-      <div class="card" id="card-formal">
-        <h4>정중한 버전</h4>
-        <div class="trophy-preview">
-          <div class="p-type" id="type-formal"></div>
-          <div class="p-receiver" id="rcv-formal"></div>
-          <div class="p-body" id="body-formal"></div>
-          <div class="p-date" id="date-formal"></div>
-          <div class="p-giver" id="gvr-formal"></div>
-        </div>
-        <div class="card-btn-group">
-          <button class="copy-btn btn-only-body" onclick="copyOnlyBody('formal')">✨ 문구만 복사</button>
-          <button class="copy-btn btn-all-text" onclick="copyAllText('formal')">📋 전체 복사</button>
-        </div>
-      </div>
-      </div>
+  <div id="result-area" style="display:none;">
+    <div class="result-grid" id="card-container"></div>
   </div>
 </div>
 
 <script>
-let selectedType = "감사패"; let selectedTarget = "전체"; let selectedLength = "200";
-function selectType(btn, val) { document.querySelectorAll('#type-group .cate-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); selectedType = val; }
-function selectTarget(btn, val) { document.querySelectorAll('#target-group .target-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); selectedTarget = val; }
-function selectLen(btn, val) { document.querySelectorAll('#len-group .len-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); selectedLength = val; }
+let selectedType = "감사패";
+function selectType(btn, val) { selectedType = val; document.querySelectorAll('.cate-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
 
 async function requestAIText() {
-  const keywords = document.getElementById('ai-keywords').value;
-  const receiverInput = document.getElementById('ai-receiver').value.trim();
-  const giverInput = document.getElementById('ai-giver').value.trim();
-  let dateInput = document.getElementById('ai-date').value.trim() || `${new Date().getFullYear()}년 ${new Date().getMonth()+1}월 ${new Date().getDate()}일`;
-
   const submitBtn = document.getElementById('submit-btn');
-  submitBtn.disabled = true; submitBtn.innerText = "🤖 문구를 생성하고 있습니다...";
+  submitBtn.disabled = true; submitBtn.innerText = "생성 중...";
 
   try {
-    const response = await fetch('/api/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: selectedType, target: selectedTarget, message: keywords, maxLength: selectedLength, receiver: receiverInput, date: dateInput, giver: giverInput }) });
+    const response = await fetch('/api/generate', { 
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, 
+      body: JSON.stringify({ 
+        type: selectedType, 
+        receiver: document.getElementById('ai-receiver').value,
+        message: document.getElementById('ai-keywords').value,
+        date: document.getElementById('ai-date').value,
+        giver: document.getElementById('ai-giver').value
+      }) 
+    });
     const data = await response.json();
-    
-    ['formal', 'touching', 'creative'].forEach(v => {
-      document.getElementById(`type-${v}`).innerText = selectedType;
-      document.getElementById(`rcv-${v}`).innerText = receiverInput;
-      document.getElementById(`date-${v}`).innerText = dateInput;
-      document.getElementById(`gvr-${v}`).innerText = giverInput;
+    const container = document.getElementById('card-container');
+    container.innerHTML = ""; 
 
+    ['formal', 'touching', 'creative'].forEach(v => {
       let rawText = data[v] || "";
+      
+      // 학위패 정제 로직: "논문제목: 내용"을 찾아서 \n\n으로 강제 줄바꿈
       if (selectedType === "학위패") {
-        // [논문제목: 내용]을 찾아 \n\n으로 강제 분리하고 나머지는 삭제
-        const titleMatch = rawText.match(/(논문명:|논문제목:|Title:)\s*(.*)/i);
-        let titlePart = titleMatch ? titleMatch[0] : "";
-        let bodyPart = rawText.replace(titleMatch ? titleMatch[0] : "", "").trim();
-        document.getElementById(`body-${v}`).innerText = titlePart + "\n\n" + bodyPart;
-      } else {
-        document.getElementById(`body-${v}`).innerText = rawText.trim();
+        const regex = /(논문명:|논문제목:|Title:)\s*(.*)/i;
+        const m = rawText.match(regex);
+        if (m) rawText = m[0] + "\n\n" + rawText.replace(m[0], "").trim();
       }
+
+      container.innerHTML += `
+        <div class="card">
+          <h4>${v === 'formal' ? '정중한' : '감동적인'} 버전</h4>
+          <div style="font-weight:bold;">${selectedType}</div>
+          <div style="text-align:right;">${document.getElementById('ai-receiver').value}</div>
+          <div class="p-body">${rawText}</div>
+          <div style="text-align:center;">${document.getElementById('ai-date').value}</div>
+          <div style="text-align:center;">${document.getElementById('ai-giver').value}</div>
+          <button onclick="copyText('${v}')">전체 복사</button>
+        </div>`;
     });
     document.getElementById('result-area').style.display = 'block';
-  } finally { submitBtn.disabled = false; submitBtn.innerText = "AI 문구 생성하기"; }
+  } catch (e) { alert("오류 발생"); } finally { submitBtn.disabled = false; submitBtn.innerText = "AI 문구 생성하기"; }
 }
-function copyOnlyBody(id) { executeCopy(document.getElementById(`body-${id}`).innerText, '문구 복사 완료!'); }
-function copyAllText(id) { executeCopy(`${document.getElementById(`type-${id}`).innerText}\n\n${document.getElementById(`rcv-${id}`).innerText}\n\n${document.getElementById(`body-${id}`).innerText}\n\n${document.getElementById(`date-${id}`).innerText}\n${document.getElementById(`gvr-${id}`).innerText}`, '전체 시안 복사 완료!'); }
-function executeCopy(text, msg) { const t = document.createElement('textarea'); t.value = text; document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t); alert(msg); }
+
+function copyText(v) {
+  const card = document.querySelectorAll('.card')[[['formal', 'touching', 'creative'].indexOf(v)]];
+  navigator.clipboard.writeText(card.innerText.replace('전체 복사', ''));
+  alert("복사되었습니다!");
+}
 </script>
 </body>
 </html>
