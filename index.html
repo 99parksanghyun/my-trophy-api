@@ -19,14 +19,28 @@
 
     .gen-btn { width: 100%; padding: 18px; background: var(--navy); color: gold; font-size: 18px; font-weight: bold; border: none; cursor: pointer; border-radius: 6px; margin-top: 30px; }
     
-    /* ⚠️ 결과창을 3열 가로 배열(Grid 3컬럼)로 변경하고 컨테이너 맥스 너비를 넓혔습니다 */
+    /* 결과창 가로 3열 배열 */
     .result-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-top: 35px; }
-    @media (max-width: 900px) { .result-grid { grid-template-columns: 1fr; } } /* 모바일 배려 */
+    @media (max-width: 900px) { .result-grid { grid-template-columns: 1fr; } } 
     
     .card { padding: 25px; border: 1px solid #eee; border-top: 4px solid var(--gold); background: #fcfcfc; box-shadow: 0 4px 10px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: space-between; }
     .card h4 { margin: 0 0 15px 0; color: var(--navy); border-bottom: 1px dashed #ddd; padding-bottom: 8px; font-size: 16px; text-align: center; }
-    .content { line-height: 1.8; white-space: pre-wrap; font-size: 13.5px; color: #333; text-align: center; padding: 15px 0; letter-spacing: -0.5px; flex-grow: 1; }
-    .copy-btn { margin-top: 15px; background: var(--gold); color: white; border: none; padding: 8px 16px; cursor: pointer; border-radius: 3px; font-size: 12px; font-weight: bold; width: 100%; }
+    
+    /* ⚠️ 상패 시안 내부 정렬용 스타일 박스 */
+    .trophy-preview { display: flex; flex-direction: column; flex-grow: 1; padding: 10px 0; }
+    
+    /* 1. 상패 종류: 무조건 가운데 정렬 및 강조 */
+    .p-type { text-align: center; font-size: 18px; font-weight: bold; color: var(--navy); margin-bottom: 15px; letter-spacing: 2px; }
+    
+    /* 2. 받는 사람: 본문 기준 우측 정렬 */
+    .p-receiver { text-align: right; font-size: 14px; font-weight: bold; color: #333; margin-bottom: 20px; padding-right: 5px; }
+    
+    /* 3. 본문, 날짜, 주는사람: 기본 가운데 정렬 */
+    .p-body { line-height: 1.8; white-space: pre-wrap; font-size: 13.5px; color: #444; text-align: center; margin-bottom: 25px; letter-spacing: -0.5px; }
+    .p-date { text-align: center; font-size: 13px; color: #666; margin-bottom: 5px; }
+    .p-giver { text-align: center; font-size: 14px; font-weight: bold; color: #222; }
+
+    .copy-btn { margin-top: 20px; background: var(--gold); color: white; border: none; padding: 8px 16px; cursor: pointer; border-radius: 3px; font-size: 12px; font-weight: bold; width: 100%; }
   </style>
 </head>
 <body>
@@ -51,7 +65,7 @@
   <div id="target-group" class="btn-group">
     <button class="target-btn active" onclick="selectTarget(this, '전체')">전체</button>
     <button class="target-btn" onclick="selectTarget(this, '회사')">회사</button>
-    <button class="target-btn" onclick="selectTarget(this, '학교')">학교</button>
+    <button class="target-btn" onclick="schoolTarget(this, '학교')">학교</button>
     <button class="target-btn" onclick="selectTarget(this, '단체')">단체</button>
     <button class="target-btn" onclick="selectTarget(this, '관공서')">관공서</button>
     <button class="target-btn" onclick="selectTarget(this, '가족')">가족</button>
@@ -68,7 +82,7 @@
 
   <div class="section-title">5. 수여 날짜</div>
   <input type="text" id="ai-date" class="vertical-input" placeholder="예) 2026년 6월 12일 / 2026. 06. 12">
-  <span class="input-hint">* 비워두하시면 자동으로 오늘 날짜가 적용됩니다.</span>
+  <span class="input-hint">* 비워두시면 자동으로 오늘 날짜가 적용됩니다.</span>
 
   <div class="section-title">6. 주는 사람 (수여자)</div>
   <input type="text" id="ai-giver" class="vertical-input" placeholder="예) 주식회사 상패다 임직원 일동 / 삼남매 올림">
@@ -81,13 +95,48 @@
     <button class="len-btn" onclick="selectLen(this, '100')">100자 내외 (심플하게)</button>
   </div>
 
-  <!-- ⚠️ '명품' 글자 제외 완료 -->
   <button class="gen-btn" onclick="requestAIText()">AI 문구 생성하기</button>
 
+  <!-- ⚠️ 내부 구조가 시안 형태로 업그레이드된 결과창 -->
   <div id="result-area" class="result-grid" style="display:none;">
-    <div class="card" id="card-formal"><h4>정중한 버전</h4><div class="content"></div><button class="copy-btn" onclick="copyText('formal')">복사하기</button></div>
-    <div class="card" id="card-touching"><h4>감동적인 버전</h4><div class="content"></div><button class="copy-btn" onclick="copyText('touching')">복사하기</button></div>
-    <div class="card" id="card-creative"><h4>개성적인 버전</h4><div class="content"></div><button class="copy-btn" onclick="copyText('creative')">복사하기</button></div>
+    <!-- 정중한 버전 -->
+    <div class="card" id="card-formal">
+      <h4>정중한 버전</h4>
+      <div class="trophy-preview">
+        <div class="p-type" id="type-formal"></div>
+        <div class="p-receiver" id="rcv-formal"></div>
+        <div class="p-body" id="body-formal">🤖 문장을 빌드하고 있습니다...</div>
+        <div class="p-date" id="date-formal"></div>
+        <div class="p-giver" id="gvr-formal"></div>
+      </div>
+      <button class="copy-btn" onclick="copyText('formal')">전체 복사하기</button>
+    </div>
+
+    <!-- 감동적인 버전 -->
+    <div class="card" id="card-touching">
+      <h4>감동적인 버전</h4>
+      <div class="trophy-preview">
+        <div class="p-type" id="type-touching"></div>
+        <div class="p-receiver" id="rcv-touching"></div>
+        <div class="p-body" id="body-touching">🤖 문장을 빌드하고 있습니다...</div>
+        <div class="p-date" id="date-touching"></div>
+        <div class="p-giver" id="gvr-touching"></div>
+      </div>
+      <button class="copy-btn" onclick="copyText('touching')">전체 복사하기</button>
+    </div>
+
+    <!-- 개성적인 버전 -->
+    <div class="card" id="card-creative">
+      <h4>개성적인 버전</h4>
+      <div class="trophy-preview">
+        <div class="p-type" id="type-creative"></div>
+        <div class="p-receiver" id="rcv-creative"></div>
+        <div class="p-body" id="body-creative">🤖 문장을 빌드하고 있습니다...</div>
+        <div class="p-date" id="date-creative"></div>
+        <div class="p-giver" id="gvr-creative"></div>
+      </div>
+      <button class="copy-btn" onclick="copyText('creative')">전체 복사하기</button>
+    </div>
   </div>
 </div>
 
@@ -115,9 +164,18 @@ async function requestAIText() {
     dateInput = `${today.getFullYear()}년 ${today.getMonth() + 1}월 ${today.getDate()}일`;
   }
 
+  // 로딩 알림 및 기본 요소 배치
   const resultArea = document.getElementById('result-area');
   resultArea.style.display = 'grid';
-  document.querySelectorAll('.content').forEach(el => el.innerText = '🤖 요청하신 글자수 분량에 맞춰 문장을 빌드하고 있습니다...');
+  
+  const versions = ['formal', 'touching', 'creative'];
+  versions.forEach(v => {
+    document.getElementById(`type-${v}`).innerText = selectedType;
+    document.getElementById(`rcv-${v}`).innerText = receiverInput;
+    document.getElementById(`body-${v}`).innerText = 'AI가 실제 상패 레이아웃에 맞춰 본문을 작성 중입니다...';
+    document.getElementById(`date-${v}`).innerText = dateInput;
+    document.getElementById(`gvr-${v}`).innerText = giverInput;
+  });
 
   try {
     const response = await fetch('/api/generate', {
@@ -135,17 +193,35 @@ async function requestAIText() {
     });
     const data = await response.json();
     
-    document.querySelector('#card-formal .content').innerText = data.formal;
-    document.querySelector('#card-touching .content').innerText = data.touching;
-    document.querySelector('#card-creative .content').innerText = data.creative;
+    // API에서 받아온 순수 본문 텍스트만 중간에 쏙 매핑 (앞뒤 문자열 꼬임 방지)
+    versions.forEach(v => {
+      let rawText = data[v] || "";
+      // 서버에서 만약 위아래 정보를 다 합쳐서 보냈을 경우를 대비해 본문만 발라내거나 깔끔하게 치환처리
+      if (rawText.includes(receiverInput)) {
+        let splitText = rawText.split('\n\n');
+        if (splitText.length >= 3) {
+          rawText = splitText.slice(1, splitText.length - 1).join('\n\n');
+        }
+      }
+      document.getElementById(`body-${v}`).innerText = rawText.trim();
+    });
+
   } catch (e) { 
     alert('네트워크 상태를 확인해 주세요.'); 
   }
 }
 
 function copyText(id) {
-  const text = document.querySelector(`#card-${id} .content`).innerText;
-  navigator.clipboard.writeText(text).then(() => alert('완성된 문구가 복사되었습니다.'));
+  const type = document.getElementById(`type-${id}`).innerText;
+  const rcv = document.getElementById(`rcv-${id}`).innerText;
+  const body = document.getElementById(`body-${id}`).innerText;
+  const date = document.getElementById(`date-${id}`).innerText;
+  const gvr = document.getElementById(`gvr-${id}`).innerText;
+  
+  // 클립보드에 복사될 때는 상패 인쇄용 정석 줄바꿈 템플릿으로 복사됩니다.
+  const fullText = `${type}\n\n${rcv}\n\n${body}\n\n${date}\n${gvr}`;
+  
+  navigator.clipboard.writeText(fullText).then(() => alert('상패 시안 서식 전체가 복사되었습니다!'));
 }
 </script>
 </body>
