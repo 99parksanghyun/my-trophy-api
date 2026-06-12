@@ -226,8 +226,16 @@ async function requestAIText() {
     
     versions.forEach(v => {
       let rawText = data[v] || "";
-      rawText = rawText.replace(selectedType, "").replace(receiverInput, "").replace(dateInput, "").replace(giverInput, "");
-      document.getElementById(`body-${v}`).innerText = rawText.trim();
+      
+      // [★ 학위패 필터 예외 처리 적용 완료]
+      if (selectedType === "학위패") {
+        // 학위패일 때는 AI가 생성한 [논문명 + 본문] 줄바꿈 서식을 훼손하지 않고 그대로 노출합니다.
+        document.getElementById(`body-${v}`).innerText = rawText.trim();
+      } else {
+        // 일반 상패 종류일 때만 기존처럼 중복 텍스트들을 지우고 순수 본문만 보여줍니다.
+        rawText = rawText.replace(selectedType, "").replace(receiverInput, "").replace(dateInput, "").replace(giverInput, "");
+        document.getElementById(`body-${v}`).innerText = rawText.trim();
+      }
     });
 
   } catch (e) { 
@@ -236,7 +244,7 @@ async function requestAIText() {
   }
 }
 
-// 1. 오직 알맹이 문구만 쏙 빼서 복사하는 함수
+// 1. 오직 알맹이 문구만 쏙 빼서 복사하는 함수 (수동 줄바꿈 없는 순수 텍스트 버전)
 function copyOnlyBody(id) {
   const bodyText = document.getElementById(`body-${id}`).innerText.trim();
   executeCopy(bodyText, '추천 본문 문구만 깔끔하게 복사되었습니다!\n주문서 본문 칸에 바로 붙여넣으세요.');
