@@ -64,7 +64,6 @@
   <div id="target-group" class="btn-group">
     <button class="target-btn active" onclick="selectTarget(this, '전체')">전체</button>
     <button class="target-btn" onclick="selectTarget(this, '회사')">회사</button>
-    <!-- ⚠️ schoolTarget 오타를 selectTarget으로 완벽히 수정 완료했습니다 -->
     <button class="target-btn" onclick="selectTarget(this, '학교')">학교</button>
     <button class="target-btn" onclick="selectTarget(this, '단체')">단체</button>
     <button class="target-btn" onclick="selectTarget(this, '관공서')">관공서</button>
@@ -98,7 +97,6 @@
   <button class="gen-btn" onclick="requestAIText()">AI 문구 생성하기</button>
 
   <div id="result-area" class="result-grid" style="display:none;">
-    <!-- 정중한 버전 -->
     <div class="card" id="card-formal">
       <h4>정중한 버전</h4>
       <div class="trophy-preview">
@@ -111,7 +109,6 @@
       <button class="copy-btn" onclick="copyText('formal')">전체 복사하기</button>
     </div>
 
-    <!-- 감동적인 버전 -->
     <div class="card" id="card-touching">
       <h4>감동적인 버전</h4>
       <div class="trophy-preview">
@@ -124,7 +121,6 @@
       <button class="copy-btn" onclick="copyText('touching')">전체 복사하기</button>
     </div>
 
-    <!-- 개성적인 버전 -->
     <div class="card" id="card-creative">
       <h4>개성적인 버전</h4>
       <div class="trophy-preview">
@@ -190,20 +186,20 @@ async function requestAIText() {
       })
     });
     
-    if (!response.ok) {
-      throw new Error('API 서버에서 에러를 반환했습니다.');
-    }
-    
+    if (!response.ok) throw new Error('API 서버 에러');
     const data = await response.json();
     
+    // ⚠️ 오류가 발생하던 문자열 분할 방식 대신, 타겟 단어들을 안전하게 제거하는 방식으로 교정했습니다.
     versions.forEach(v => {
       let rawText = data[v] || "";
-      if (rawText.includes(receiverInput)) {
-        let splitText = rawText.split('\n\n');
-        if (splitText.length >= 3) {
-          rawText = splitText.slice(1, splitText.length - 1).join('\n\n');
-        }
-      }
+      
+      // AI 응답 텍스트 내부에 메타 정보가 중복 포함되어 있을 경우를 대비한 안전 정제
+      rawText = rawText.replace(selectedType, "")
+                       .replace(receiverInput, "")
+                       .replace(dateInput, "")
+                       .replace(giverInput, "");
+                       
+      // 불필요하게 남은 앞뒤 공백 및 줄바꿈 정리
       document.getElementById(`body-${v}`).innerText = rawText.trim();
     });
 
