@@ -11,7 +11,7 @@
     .section-title { font-size: 14px; color: var(--navy); border-bottom: 2px solid var(--navy); padding-bottom: 5px; margin: 20px 0 10px 0; font-weight: bold; }
     .btn-group { margin-bottom: 12px; }
     button { padding: 8px 14px; margin: 2px; border: 1px solid #ddd; background: #fff; cursor: pointer; border-radius: 4px; font-size: 13px; }
-    button.active { background: var(--navy); color: #fff; }
+    button.active { background: var(--navy); color: #fff; border-color: var(--navy); }
     .vertical-input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; margin-bottom: 10px; }
     textarea { width: 100%; height: 100px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; resize: none; }
     .gen-btn { width: 100%; padding: 15px; background: var(--navy); color: gold; font-weight: bold; border: none; cursor: pointer; margin-top: 20px; }
@@ -21,79 +21,42 @@
   </style>
 </head>
 <body>
-
 <div class="container">
   <h2>상패다 문구 도우미</h2>
-  <div class="section-title">1. 상패 종류</div>
+  <div class="section-title">상패 종류</div>
   <div id="type-group" class="btn-group">
     <button class="cate-btn active" onclick="selectType(this, '감사패')">감사패</button>
     <button class="cate-btn" onclick="selectType(this, '학위패')">학위패</button>
   </div>
   <input type="text" id="ai-receiver" class="vertical-input" placeholder="받는 사람">
-  <textarea id="ai-keywords" placeholder="본문 내용"></textarea>
+  <textarea id="ai-keywords" placeholder="본문 내용 및 논문제목"></textarea>
   <input type="text" id="ai-date" class="vertical-input" placeholder="날짜">
   <input type="text" id="ai-giver" class="vertical-input" placeholder="주는 사람">
-  
   <button id="submit-btn" class="gen-btn" onclick="requestAIText()">AI 문구 생성하기</button>
-
-  <div id="result-area" style="display:none;">
-    <div class="result-grid" id="card-container"></div>
-  </div>
+  <div id="result-area" style="display:none;"><div class="result-grid" id="card-container"></div></div>
 </div>
-
 <script>
 let selectedType = "감사패";
 function selectType(btn, val) { selectedType = val; document.querySelectorAll('.cate-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
-
 async function requestAIText() {
   const submitBtn = document.getElementById('submit-btn');
   submitBtn.disabled = true; submitBtn.innerText = "생성 중...";
-
   try {
-    const response = await fetch('/api/generate', { 
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, 
-      body: JSON.stringify({ 
-        type: selectedType, 
-        receiver: document.getElementById('ai-receiver').value,
-        message: document.getElementById('ai-keywords').value,
-        date: document.getElementById('ai-date').value,
-        giver: document.getElementById('ai-giver').value
-      }) 
-    });
-    const data = await response.json();
-    const container = document.getElementById('card-container');
-    container.innerHTML = ""; 
-
+    const res = await fetch('/api/generate', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ type: selectedType, receiver: document.getElementById('ai-receiver').value, message: document.getElementById('ai-keywords').value, date: document.getElementById('ai-date').value, giver: document.getElementById('ai-giver').value }) });
+    const data = await res.json();
+    const container = document.getElementById('card-container'); container.innerHTML = "";
     ['formal', 'touching', 'creative'].forEach(v => {
       let rawText = data[v] || "";
-      
-      // 학위패 정제 로직: "논문제목: 내용"을 찾아서 \n\n으로 강제 줄바꿈
       if (selectedType === "학위패") {
-        const regex = /(논문명:|논문제목:|Title:)\s*(.*)/i;
-        const m = rawText.match(regex);
+        const m = rawText.match(/(논문명:|논문제목:|Title:)\s*(.*)/i);
         if (m) rawText = m[0] + "\n\n" + rawText.replace(m[0], "").trim();
       }
-
-      container.innerHTML += `
-        <div class="card">
-          <h4>${v === 'formal' ? '정중한' : '감동적인'} 버전</h4>
-          <div style="font-weight:bold;">${selectedType}</div>
-          <div style="text-align:right;">${document.getElementById('ai-receiver').value}</div>
-          <div class="p-body">${rawText}</div>
-          <div style="text-align:center;">${document.getElementById('ai-date').value}</div>
-          <div style="text-align:center;">${document.getElementById('ai-giver').value}</div>
-          <button onclick="copyText('${v}')">전체 복사</button>
-        </div>`;
+      container.innerHTML += `<div class="card"><h4>${v} 버전</h4><div style="font-weight:bold;">${selectedType}</div><div style="text-align:right;">${document.getElementById('ai-receiver').value}</div><div class="p-body">${rawText}</div><div style="text-align:center;">${document.getElementById('ai-date').value}</div><div style="text-align:center;">${document.getElementById('ai-giver').value}</div><button onclick="copyText(this)">전체 복사</button></div>`;
     });
     document.getElementById('result-area').style.display = 'block';
-  } catch (e) { alert("오류 발생"); } finally { submitBtn.disabled = false; submitBtn.innerText = "AI 문구 생성하기"; }
+  } finally { submitBtn.disabled = false; submitBtn.innerText = "AI 문구 생성하기"; }
 }
-
-function copyText(v) {
-  const card = document.querySelectorAll('.card')[[['formal', 'touching', 'creative'].indexOf(v)]];
-  navigator.clipboard.writeText(card.innerText.replace('전체 복사', ''));
-  alert("복사되었습니다!");
-}
+function copyText(btn) { navigator.clipboard.writeText(btn.parentElement.innerText.replace('전체 복사', '')); alert("복사 완료!"); }
 </script>
 </body>
 </html>
