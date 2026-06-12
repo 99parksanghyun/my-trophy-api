@@ -10,34 +10,18 @@
     .container { max-width: 950px; margin: 0 auto; padding: 35px; background: #fff; border-top: 5px solid var(--navy); box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-radius: 0 0 8px 8px; }
     h2 { color: var(--navy); text-align: center; margin-bottom: 25px; letter-spacing: -1px; font-size: 22px; }
     .section-title { font-size: 14px; color: var(--navy); border-bottom: 2px solid var(--navy); padding-bottom: 5px; margin: 20px 0 10px 0; font-weight: bold; }
-    .btn-group { margin-bottom: 12px; position: relative; z-index: 10; }
-    button { padding: 7px 12px; margin: 2px; border: 1px solid #ddd; background: #fff; cursor: pointer; border-radius: 4px; transition: 0.3s; font-size: 12.5px; position: relative; z-index: 11; }
+    
+    .btn-group { margin-bottom: 12px; }
+    button.cate-btn, button.target-btn, button.len-btn { padding: 7px 12px; margin: 2px; border: 1px solid #ddd; background: #fff; cursor: pointer; border-radius: 4px; transition: 0.3s; font-size: 12.5px; }
     button.active { background: var(--navy); color: #fff; border-color: var(--navy); font-weight: bold; }
     
     .vertical-input { width: 100%; padding: 10px 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 13.5px; margin-bottom: 3px; }
     textarea { width: 100%; height: 110px; padding: 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; resize: none; font-size: 13.5px; line-height: 1.5; }
     .input-hint { display: block; font-size: 11px; color: #777; margin-bottom: 12px; margin-top: 1px; padding-left: 2px; }
 
-    .gen-btn { width: 100%; padding: 15px; background: var(--navy); color: gold; font-size: 16px; font-weight: bold; border: none; cursor: pointer; border-radius: 6px; margin-top: 20px; }
+    .gen-btn { width: 100%; padding: 15px; background: var(--navy); color: gold; font-size: 16px; font-weight: bold; border: none; cursor: pointer; border-radius: 6px; margin-top: 20px; transition: 0.2s; }
+    .gen-btn:disabled { background: #555 !important; color: #aaa !important; cursor: not-allowed; }
     
-    /* ⏳ 100% 차단형 전체 화면 로딩 마스크 */
-    #loading-mask {
-      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-      background: rgba(26, 42, 68, 0.85); /* 네이비 톤 투명 배경 */
-      display: none; /* 평소에는 아예 화면에서 제외하여 클릭 간섭을 전면 차단 */
-      flex-direction: column; justify-content: center; align-items: center;
-      z-index: 9999; color: #fff; font-family: sans-serif;
-    }
-    .spinner {
-      width: 50px; height: 50px;
-      border: 5px solid rgba(255, 255, 255, 0.3);
-      border-radius: 50%; border-top-color: gold;
-      animation: spin 1s ease-in-out infinite; margin-bottom: 20px;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .loading-text { font-size: 18px; font-weight: bold; letter-spacing: -0.5px; text-align: center; line-height: 1.6; }
-    .loading-sub { font-size: 13px; color: #ccc; margin-top: 8px; }
-
     /* 결과창 틀 고정 높이 및 휠 스크롤바 바인딩 */
     .result-scroll-box { 
       margin-top: 25px; 
@@ -70,7 +54,7 @@
 
     /* 두 개의 버튼을 하단에 나란히 배치하기 위한 박스 */
     .card-btn-group { display: flex; gap: 6px; margin-top: 15px; }
-    .copy-btn { flex: 1; padding: 9px 5px; cursor: pointer; border-radius: 4px; font-size: 11.5px; font-weight: bold; transition: 0.2s; box-sizing: border-box; text-align: center; }
+    .copy-btn { flex: 1; padding: 9px 5px; cursor: pointer; border-radius: 4px; font-size: 11.5px; font-weight: bold; transition: 0.2s; box-sizing: border-box; text-align: center; border: 1px solid #ddd; background: #fff; }
     
     /* 문구만 복사 (포인트 골드 스타일) */
     .btn-only-body { background: #fff; color: var(--gold); border: 1px solid var(--gold); }
@@ -82,12 +66,6 @@
   </style>
 </head>
 <body>
-
-<div id="loading-mask">
-  <div class="spinner"></div>
-  <div class="loading-text">상패다 AI가 문구를 열심히 장인처럼 깎고 있습니다...</div>
-  <div class="loading-sub">품격 있는 문장 조합을 위해 약 3~6초가 소요됩니다. 잠시만 기다려 주세요.</div>
-</div>
 
 <div class="container">
   <h2>상패다 문구 도우미</h2>
@@ -126,4 +104,183 @@
 
   <div class="section-title">5. 수여 날짜</div>
   <input type="text" id="ai-date" class="vertical-input" placeholder="예) 2026년 6월 12일 / 2026. 06. 12">
-  <span class="input-hint">* 비워
+  <span class="input-hint">* 비워두시면 자동으로 오늘 날짜가 적용됩니다.</span>
+
+  <div class="section-title">6. 주는 사람 (수여자)</div>
+  <input type="text" id="ai-giver" class="vertical-input" placeholder="예) 주식회사 상패다 임직원 일동 / 삼남매 올림">
+  <span class="input-hint">* 상패 맨 아래 하단에 직인과 함께 각인될 단체명이나 성함을 적어주세요.</span>
+
+  <div class="section-title">7. 추천 본문 글자수 고르기</div>
+  <div id="len-group" class="btn-group">
+    <button class="len-btn active" onclick="selectLen(this, '200')">200자 내외 (풍성하게)</button>
+    <button class="len-btn" onclick="selectLen(this, '150')">150자 내외 (적당하게)</button>
+    <button class="len-btn" onclick="selectLen(this, '100')">100자 내외 (심플하게)</button>
+  </div>
+
+  <button id="submit-btn" class="gen-btn" onclick="requestAIText()">AI 문구 생성하기</button>
+
+  <div id="result-area" class="result-scroll-box" style="display:none;">
+    <div class="result-grid">
+      <div class="card" id="card-formal">
+        <h4>정중한 버전</h4>
+        <div class="trophy-preview">
+          <div class="p-type" id="type-formal"></div>
+          <div class="p-receiver" id="rcv-formal"></div>
+          <div class="p-body" id="body-formal"></div>
+          <div class="p-date" id="date-formal"></div>
+          <div class="p-giver" id="gvr-formal"></div>
+        </div>
+        <div class="card-btn-group">
+          <button class="copy-btn btn-only-body" onclick="copyOnlyBody('formal')">✨ 문구만 복사</button>
+          <button class="copy-btn btn-all-text" onclick="copyAllText('formal')">📋 전체 복사</button>
+        </div>
+      </div>
+
+      <div class="card" id="card-touching">
+        <h4>감동적인 버전</h4>
+        <div class="trophy-preview">
+          <div class="p-type" id="type-touching"></div>
+          <div class="p-receiver" id="rcv-touching"></div>
+          <div class="p-body" id="body-touching"></div>
+          <div class="p-date" id="date-touching"></div>
+          <div class="p-giver" id="gvr-touching"></div>
+        </div>
+        <div class="card-btn-group">
+          <button class="copy-btn btn-only-body" onclick="copyOnlyBody('touching')">✨ 문구만 복사</button>
+          <button class="copy-btn btn-all-text" onclick="copyAllText('touching')">📋 전체 복사</button>
+        </div>
+      </div>
+
+      <div class="card" id="card-creative">
+        <h4>개성적인 버전</h4>
+        <div class="trophy-preview">
+          <div class="p-type" id="type-creative"></div>
+          <div class="p-receiver" id="rcv-creative"></div>
+          <div class="p-body" id="body-creative"></div>
+          <div class="p-date" id="date-creative"></div>
+          <div class="p-giver" id="gvr-creative"></div>
+        </div>
+        <div class="card-btn-group">
+          <button class="copy-btn btn-only-body" onclick="copyOnlyBody('creative')">✨ 문구만 복사</button>
+          <button class="copy-btn btn-all-text" onclick="copyAllText('creative')">📋 전체 복사</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let selectedType = "감사패";
+let selectedTarget = "전체";
+let selectedLength = "200";
+
+function selectType(btn, val) { document.querySelectorAll('#type-group .cate-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); selectedType = val; }
+function selectTarget(btn, val) { document.querySelectorAll('#target-group .target-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); selectedTarget = val; }
+function selectLen(btn, val) { document.querySelectorAll('#len-group .len-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); selectedLength = val; }
+
+async function requestAIText() {
+  const keywords = document.getElementById('ai-keywords').value;
+  const receiverInput = document.getElementById('ai-receiver').value.trim();
+  const giverInput = document.getElementById('ai-giver').value.trim();
+  let dateInput = document.getElementById('ai-date').value.trim();
+
+  if (!receiverInput) { alert('받는 사람 성함 또는 직함을 입력해 주세요!'); return; }
+  if (!keywords.trim()) { alert('상황이나 키워드를 입력해 주세요!'); return; }
+  if (!giverInput) { alert('주는 사람을 입력해 주세요!'); return; }
+  
+  if (!dateInput) {
+    const today = new Date();
+    dateInput = `${today.getFullYear()}년 ${today.getMonth() + 1}월 ${today.getDate()}일`;
+  }
+
+  // 🔒 [안전 조치] 생성 버튼 글자를 바꾸고 비활성화하여 중복 클릭 원천 차단
+  const submitBtn = document.getElementById('submit-btn');
+  submitBtn.disabled = true;
+  submitBtn.innerText = "🤖 문구를 생성하고 있습니다 (3~6초 소요)...";
+
+  try {
+    const response = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        type: selectedType, 
+        target: selectedTarget, 
+        message: keywords, 
+        maxLength: selectedLength,
+        receiver: receiverInput,
+        date: dateInput,
+        giver: giverInput
+      })
+    });
+    
+    if (!response.ok) throw new Error('API 서버 에러');
+    const data = await response.json();
+    
+    const versions = ['formal', 'touching', 'creative'];
+    versions.forEach(v => {
+      document.getElementById(`type-${v}`).innerText = selectedType;
+      document.getElementById(`rcv-${v}`).innerText = receiverInput;
+      document.getElementById(`date-${v}`).innerText = dateInput;
+      document.getElementById(`gvr-${v}`).innerText = giverInput;
+
+      let rawText = data[v] || "";
+      
+      if (selectedType === "학위패") {
+        document.getElementById(`body-${v}`).innerText = rawText.trim();
+      } else {
+        rawText = rawText.replace(selectedType, "").replace(receiverInput, "").replace(dateInput, "").replace(giverInput, "");
+        document.getElementById(`body-${v}`).innerText = rawText.trim();
+      }
+    });
+
+    document.getElementById('result-area').style.display = 'block';
+
+  } catch (e) { 
+    console.error(e);
+    alert('AI 연산 중 일시적인 지연이 발생했습니다. 잠시 후 다시 시도해 주세요.'); 
+  } finally {
+    // 🔓 처리가 완료되면 버튼을 다시 활성화 상태로 롤백
+    submitBtn.disabled = false;
+    submitBtn.innerText = "AI 문구 생성하기";
+  }
+}
+
+function copyOnlyBody(id) {
+  const bodyText = document.getElementById(`body-${id}`).innerText.trim();
+  executeCopy(bodyText, '추천 본문 문구만 깔끔하게 복사되었습니다!\n주문서 본문 칸에 바로 붙여넣으세요.');
+}
+
+function copyAllText(id) {
+  const type = document.getElementById(`type-${id}`).innerText.trim();
+  const rcv = document.getElementById(`rcv-${id}`).innerText.trim();
+  const body = document.getElementById(`body-${id}`).innerText.trim();
+  const date = document.getElementById(`date-${id}`).innerText.trim();
+  const gvr = document.getElementById(`gvr-${id}`).innerText.trim();
+  
+  const fullText = `${type}\n\n${rcv}\n\n${body}\n\n${date}\n${gvr}`;
+  executeCopy(fullText, '상패 전체 시안 서식이 줄바꿈을 포함하여 통째로 복사되었습니다!');
+}
+
+function executeCopy(text, successMsg) {
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.style.top = '0';
+  textarea.style.left = '0';
+  textarea.style.position = 'fixed';
+  document.body.appendChild(textarea);
+  textarea.focus();
+  textarea.select();
+  
+  try {
+    document.execCommand('copy');
+    alert(successMsg);
+  } catch (err) {
+    navigator.clipboard.writeText(text).then(() => {
+      alert(successMsg);
+    });
+  }
+  document.body.removeChild(textarea);
+}
+</script>
+</body>
+</html>
