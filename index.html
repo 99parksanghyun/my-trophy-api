@@ -6,45 +6,77 @@
   <style>
     :root { --navy: #1a2a44; --gold: #c5a059; }
     body { background: #f4f4f5; font-family: 'Pretendard', sans-serif; padding: 20px; }
-    .container { max-width: 950px; margin: 0 auto; padding: 35px; background: #fff; border-top: 5px solid var(--navy); }
+    .container { max-width: 950px; margin: 0 auto; padding: 35px; background: #fff; border-top: 5px solid var(--navy); box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-radius: 0 0 8px 8px; }
     h2 { color: var(--navy); text-align: center; margin-bottom: 25px; }
     .section-title { font-size: 14px; color: var(--navy); border-bottom: 2px solid var(--navy); padding-bottom: 5px; margin: 20px 0 10px 0; font-weight: bold; }
     .btn-group { margin-bottom: 12px; }
-    button { padding: 8px 14px; margin: 2px; border: 1px solid #ddd; background: #fff; cursor: pointer; border-radius: 4px; font-size: 13px; }
-    button.active { background: var(--navy); color: #fff; border-color: var(--navy); }
-    .vertical-input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; margin-bottom: 10px; }
-    textarea { width: 100%; height: 100px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; resize: none; }
-    .gen-btn { width: 100%; padding: 15px; background: var(--navy); color: gold; font-weight: bold; border: none; cursor: pointer; margin-top: 20px; }
-    .result-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-top: 20px; }
+    button.cate-btn { padding: 7px 12px; margin: 2px; border: 1px solid #ddd; background: #fff; cursor: pointer; border-radius: 4px; font-size: 12.5px; transition: 0.3s; }
+    button.active { background: var(--navy); color: #fff; border-color: var(--navy); font-weight: bold; }
+    .vertical-input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; margin-bottom: 5px; }
+    textarea { width: 100%; height: 110px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; resize: none; box-sizing: border-box; }
+    .gen-btn { width: 100%; padding: 15px; background: var(--navy); color: gold; font-size: 16px; font-weight: bold; border: none; cursor: pointer; border-radius: 6px; margin-top: 20px; }
+    .result-scroll-box { margin-top: 25px; padding: 20px; background: #fafafa; border: 1px solid #ddd; border-radius: 6px; }
+    .result-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; }
     .card { padding: 20px; border: 1px solid #eee; border-top: 4px solid var(--gold); background: #fff; }
-    .p-body { white-space: pre-wrap; margin: 15px 0; line-height: 1.6; }
+    .p-body { white-space: pre-wrap; line-height: 1.7; margin: 15px 0; font-size: 13px; }
   </style>
 </head>
 <body>
+
 <div class="container">
   <h2>상패다 문구 도우미</h2>
-  <div class="section-title">상패 종류</div>
+  
+  <div class="section-title">1. 상패 종류</div>
   <div id="type-group" class="btn-group">
     <button class="cate-btn active" onclick="selectType(this, '감사패')">감사패</button>
+    <button class="cate-btn" onclick="selectType(this, '공로패')">공로패</button>
+    <button class="cate-btn" onclick="selectType(this, '기념패')">기념패</button>
     <button class="cate-btn" onclick="selectType(this, '학위패')">학위패</button>
+    <button class="cate-btn" onclick="selectType(this, '재직기념패')">재직기념패</button>
+    <button class="cate-btn" onclick="selectType(this, '표창패')">표창패</button>
+    <button class="cate-btn" onclick="selectType(this, '교회상패')">교회상패</button>
+    <button class="cate-btn" onclick="selectType(this, '위촉패')">위촉패</button>
+    <button class="cate-btn" onclick="selectType(this, '기타문구')">기타문구</button>
   </div>
-  <input type="text" id="ai-receiver" class="vertical-input" placeholder="받는 사람">
-  <textarea id="ai-keywords" placeholder="본문 내용 및 논문제목"></textarea>
-  <input type="text" id="ai-date" class="vertical-input" placeholder="날짜">
-  <input type="text" id="ai-giver" class="vertical-input" placeholder="주는 사람">
+
+  <div class="section-title">3. 받는 사람</div>
+  <input type="text" id="ai-receiver" class="vertical-input">
+  <div class="section-title">4. 본문 상황 및 키워드</div>
+  <textarea id="ai-keywords"></textarea>
+  <div class="section-title">5. 수여 날짜</div>
+  <input type="text" id="ai-date" class="vertical-input">
+  <div class="section-title">6. 주는 사람</div>
+  <input type="text" id="ai-giver" class="vertical-input">
+  
   <button id="submit-btn" class="gen-btn" onclick="requestAIText()">AI 문구 생성하기</button>
-  <div id="result-area" style="display:none;"><div class="result-grid" id="card-container"></div></div>
+
+  <div id="result-area" class="result-scroll-box" style="display:none;">
+    <div class="result-grid" id="card-container"></div>
+  </div>
 </div>
+
 <script>
 let selectedType = "감사패";
 function selectType(btn, val) { selectedType = val; document.querySelectorAll('.cate-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
+
 async function requestAIText() {
   const submitBtn = document.getElementById('submit-btn');
   submitBtn.disabled = true; submitBtn.innerText = "생성 중...";
   try {
-    const res = await fetch('/api/generate', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ type: selectedType, receiver: document.getElementById('ai-receiver').value, message: document.getElementById('ai-keywords').value, date: document.getElementById('ai-date').value, giver: document.getElementById('ai-giver').value }) });
+    const res = await fetch('/api/generate', { 
+      method: 'POST', 
+      headers: {'Content-Type': 'application/json'}, 
+      body: JSON.stringify({ 
+        type: selectedType, 
+        receiver: document.getElementById('ai-receiver').value,
+        message: document.getElementById('ai-keywords').value,
+        date: document.getElementById('ai-date').value,
+        giver: document.getElementById('ai-giver').value
+      }) 
+    });
     const data = await res.json();
-    const container = document.getElementById('card-container'); container.innerHTML = "";
+    const container = document.getElementById('card-container');
+    container.innerHTML = "";
     ['formal', 'touching', 'creative'].forEach(v => {
       let rawText = data[v] || "";
       if (selectedType === "학위패") {
