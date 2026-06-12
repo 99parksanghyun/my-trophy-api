@@ -20,11 +20,12 @@
 
     .gen-btn { width: 100%; padding: 15px; background: var(--navy); color: gold; font-size: 16px; font-weight: bold; border: none; cursor: pointer; border-radius: 6px; margin-top: 20px; }
     
-    /* ⏳ 100% 차단형 전체 화면 로딩 마스크 */
+    /* ⏳ 100% 차단형 전체 화면 로딩 마스크 (클릭 방해 버그 전면 수정) */
     #loading-mask {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
       background: rgba(26, 42, 68, 0.85); /* 네이비 톤 투명 배경 */
-      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      display: none; /* ★ 처음엔 아예 존재하지 않도록 완벽히 숨김 (display:none 필수) */
+      flex-direction: column; justify-content: center; align-items: center;
       z-index: 9999; color: #fff; font-family: sans-serif;
     }
     .spinner {
@@ -65,80 +66,4 @@
     .p-receiver { text-align: right; font-size: 13.5px; font-weight: bold; color: #333; margin-bottom: 15px; padding-right: 5px; }
     .p-body { line-height: 1.7; white-space: pre-wrap; font-size: 13px; color: #444; text-align: center; margin-bottom: 20px; letter-spacing: -0.5px; }
     .p-date { text-align: center; font-size: 12.5px; color: #666; margin-bottom: 4px; }
-    .p-giver { text-align: center; font-size: 13.5px; font-weight: bold; color: #222; }
-
-    /* 두 개의 버튼을 하단에 나란히 배치하기 위한 박스 */
-    .card-btn-group { display: flex; gap: 6px; margin-top: 15px; }
-    .copy-btn { flex: 1; padding: 9px 5px; cursor: pointer; border-radius: 4px; font-size: 11.5px; font-weight: bold; transition: 0.2s; box-sizing: border-box; text-align: center; }
-    
-    /* 문구만 복사 (포인트 골드 스타일) */
-    .btn-only-body { background: #fff; color: var(--gold); border: 1px solid var(--gold); }
-    .btn-only-body:hover { background: var(--gold); color: #fff; }
-    
-    /* 전체 복사 (차분한 그레이 네이비 스타일) */
-    .btn-all-text { background: #f4f4f5; color: #444; border: 1px solid #ddd; }
-    .btn-all-text:hover { background: var(--navy); color: #fff; border-color: var(--navy); }
-  </style>
-</head>
-<body>
-
-<div id="loading-mask" style="display: none;">
-  <div class="spinner"></div>
-  <div class="loading-text">상패다 AI가 문구를 열심히 장인처럼 깎고 있습니다...</div>
-  <div class="loading-sub">품격 있는 문장 조합을 위해 약 3~6초가 소요됩니다. 잠시만 기다려 주세요.</div>
-</div>
-
-<div class="container">
-  <h2>상패다 문구 도우미</h2>
-  
-  <div class="section-title">1. 상패 종류</div>
-  <div id="type-group" class="btn-group">
-    <button class="cate-btn active" onclick="selectType(this, '감사패')">감사패</button>
-    <button class="cate-btn" onclick="selectType(this, '공로패')">공로패</button>
-    <button class="cate-btn" onclick="selectType(this, '기념패')">기념패</button>
-    <button class="cate-btn" onclick="selectType(this, '학위패')">학위패</button>
-    <button class="cate-btn" onclick="selectType(this, '재직기념패')">재직기념패</button>
-    <button class="cate-btn" onclick="selectType(this, '표창패')">표창패</button>
-    <button class="cate-btn" onclick="selectType(this, '교회상패')">교회상패</button>
-    <button class="cate-btn" onclick="selectType(this, '위촉패')">위촉패</button>
-    <button class="cate-btn" onclick="selectType(this, '기타문구')">기타문구</button>
-  </div>
-
-  <div class="section-title">2. 대상 분류</div>
-  <div id="target-group" class="btn-group">
-    <button class="target-btn active" onclick="selectTarget(this, '전체')">전체</button>
-    <button class="target-btn" onclick="selectTarget(this, '회사')">회사</button>
-    <button class="target-btn" onclick="selectTarget(this, '학교')">학교</button>
-    <button class="target-btn" onclick="selectTarget(this, '단체')">단체</button>
-    <button class="target-btn" onclick="selectTarget(this, '관공서')">관공서</button>
-    <button class="target-btn" onclick="selectTarget(this, '가족')">가족</button>
-    <button class="target-btn" onclick="selectTarget(this, '기타')">기타</button>
-  </div>
-
-  <div class="section-title">3. 받는 사람 (수하인)</div>
-  <input type="text" id="ai-receiver" class="vertical-input" placeholder="예) 이사 홍길동 / 상무 김철수 / 어머니 김정숙">
-  <span class="input-hint">* 상패 맨 위 상단에 크게 들어갈 이름을 적어주세요.</span>
-
-  <div class="section-title">4. 본문 상황 및 키워드 입력</div>
-  <textarea id="ai-keywords" placeholder="예) 정년퇴직, 지난 20년간의 헌신과 따뜻한 리더십에 깊이 감사드립니다."></textarea>
-  <span class="input-hint">* 핵심적인 들어갈 핵심 에피소드나 키워드를 서술형으로 자유롭게 적어주세요.</span>
-
-  <div class="section-title">5. 수여 날짜</div>
-  <input type="text" id="ai-date" class="vertical-input" placeholder="예) 2026년 6월 12일 / 2026. 06. 12">
-  <span class="input-hint">* 비워두시면 자동으로 오늘 날짜가 적용됩니다.</span>
-
-  <div class="section-title">6. 주는 사람 (수여자)</div>
-  <input type="text" id="ai-giver" class="vertical-input" placeholder="예) 주식회사 상패다 임직원 일동 / 삼남매 올림">
-  <span class="input-hint">* 상패 맨 아래 하단에 직인과 함께 각인될 단체명이나 성함을 적어주세요.</span>
-
-  <div class="section-title">7. 추천 본문 글자수 고르기</div>
-  <div id="len-group" class="btn-group">
-    <button class="len-btn active" onclick="selectLen(this, '200')">200자 내외 (풍성하게)</button>
-    <button class="len-btn" onclick="selectLen(this, '150')">150자 내외 (적당하게)</button>
-    <button class="len-btn" onclick="selectLen(this, '100')">100자 내외 (심플하게)</button>
-  </div>
-
-  <button class="gen-btn" onclick="requestAIText()">AI 문구 생성하기</button>
-
-  <div id="result-area" class="result-scroll-box" style="display:none;">
-    <div class="
+    .p-giver { text-align: center; font-size: 13.5px; font-weight: bold; color:
