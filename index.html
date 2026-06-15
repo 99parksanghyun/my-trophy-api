@@ -92,11 +92,9 @@
 
   <div class="section-title">3. 받는 사람 (수하인)</div>
   <input type="text" id="ai-receiver" class="vertical-input" placeholder="예) 이사 홍길동 / 상무 김철수 / 어머니 김정숙">
-  <span class="input-hint">* 상패 맨 위 상단에 크게 들어갈 이름을 적어주세요.</span>
 
   <div class="section-title">4. 본문 상황 및 키워드 입력</div>
   <textarea id="ai-keywords" placeholder="예) 정년퇴직, 지난 20년간의 헌신과 따뜻한 리더십에 깊이 감사드립니다."></textarea>
-  <span class="input-hint">* 핵심적인 들어갈 핵심 에피소드나 키워드를 서술형으로 자유롭게 적어주세요.</span>
 
   <div class="section-title">5. 수여 날짜</div>
   <input type="text" id="ai-date" class="vertical-input" placeholder="예) 2026년 6월 12일 / 2026. 06. 12">
@@ -104,7 +102,6 @@
 
   <div class="section-title">6. 주는 사람 (수여자)</div>
   <input type="text" id="ai-giver" class="vertical-input" placeholder="예) 주식회사 상패다 임직원 일동 / 삼남매 올림">
-  <span class="input-hint">* 상패 맨 아래 하단에 직인과 함께 각인될 단체명이나 성함을 적어주세요.</span>
 
   <div class="section-title">7. 추천 본문 글자수 고르기</div>
   <div id="len-group" class="btn-group">
@@ -235,20 +232,27 @@ async function requestAIText() {
       document.getElementById(`date-${id}`).innerText = dateInput;
       document.getElementById(`gvr-${id}`).innerText = giverInput;
 
-      // ★ 핵심 수정 부분: 서버가 formal_version을 주든 formal을 주든 모두 호환!
-      const serverData = data[`${id}_version`] || data[id];
       let rawText = "";
       
-      if (serverData) {
-        rawText = serverData.content || serverData.text || "";
-      } 
+      // 서버에서 보내주는 데이터 형태가 제각각일 때를 모두 대비한 방어 코드
+      const serverData = data[`${id}_version`] || data[id];
       
-      // 혹시라도 서버 응답 구조가 완전히 다른 문자열 형태일 경우를 대비한 안전장치
-      if (!rawText) {
-        if (typeof data === 'string') {
-          rawText = data;
+      if (serverData) {
+        if (typeof serverData === 'string') {
+          // AI가 150/100자에서 텍스트만 바로 던져줄 때
+          rawText = serverData;
+        } else if (typeof serverData === 'object') {
+          // 200자에서 객체 형태로 예쁘게 줄 때
+          rawText = serverData.content || serverData.text || "";
+        }
+      }
+
+      // AI가 아예 특정 버전(예: 감동/개성)을 안 주고 누락시켰을 때의 예외 처리
+      if (!rawText || typeof rawText !== 'string' || rawText.trim() === "") {
+        if (id === 'formal') {
+          rawText = "문구를 불러오지 못했습니다. 다시 시도해주세요.";
         } else {
-          rawText = "문구를 성공적으로 가져오지 못했습니다. 다시 시도해주세요.";
+          rawText = `[안내] AI가 짧은 길이(${selectedLength}자) 요청에서는 '${id === 'touching' ? '감동' : '개성'}적인 버전'을 생략했습니다. 200자 내외 옵션으로 다시 생성하시면 3가지 버전을 모두 보실 수 있습니다.`;
         }
       }
       
