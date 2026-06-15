@@ -224,21 +224,31 @@ async function requestAIText() {
     if (!response.ok) throw new Error('API 서버 에러');
     const data = await response.json();
     
-    const versions = ['formal', 'touching', 'creative'];
-    versions.forEach(v => {
-      document.getElementById(`type-${v}`).innerText = selectedType;
-      document.getElementById(`rcv-${v}`).innerText = receiverInput;
-      document.getElementById(`date-${v}`).innerText = dateInput;
-      document.getElementById(`gvr-${v}`).innerText = giverInput;
+    // HTML의 id 이름표들
+    const htmlIds = ['formal', 'touching', 'creative'];
+    // 캡처 화면에서 확인된 서버의 실제 이름표들
+    const serverKeys = ['formal_version', 'touching_version', 'creative_version'];
 
-      let rawText = data[v] || "";
+    htmlIds.forEach((id, index) => {
+      // 상패 종류, 받는사람, 날짜, 주는사람 화면에 채우기
+      document.getElementById(`type-${id}`).innerText = selectedType;
+      document.getElementById(`rcv-${id}`).innerText = receiverInput;
+      document.getElementById(`date-${id}`).innerText = dateInput;
+      document.getElementById(`gvr-${id}`).innerText = giverInput;
+
+      // 해당 버전의 서버 이름표 가져오기
+      const serverKey = serverKeys[index];
+      let rawText = "";
       
-      if (typeof rawText === 'string') {
-        rawText = rawText.replace(selectedType, "").replace(receiverInput, "").replace(dateInput, "").replace(giverInput, "");
+      // 데이터가 정상적으로 왔고, 그 안에 content(본문)가 있는지 확인
+      if (data[serverKey] && data[serverKey].content) {
+        rawText = data[serverKey].content;
       } else {
         rawText = "문구를 불러오는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
       }
-      document.getElementById(`body-${v}`).innerText = rawText.trim();
+      
+      // 가져온 본문 텍스트를 화면에 출력
+      document.getElementById(`body-${id}`).innerText = rawText.trim();
     });
 
     document.getElementById('result-area').style.display = 'block';
