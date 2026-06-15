@@ -22,6 +22,7 @@
     .gen-btn { width: 100%; padding: 15px; background: var(--navy); color: gold; font-size: 16px; font-weight: bold; border: none; cursor: pointer; border-radius: 6px; margin-top: 20px; transition: 0.2s; }
     .gen-btn:disabled { background: #555 !important; color: #aaa !important; cursor: not-allowed; }
     
+    /* 결과창 틀 고정 높이 및 휠 스크롤바 바인딩 */
     .result-scroll-box { 
       margin-top: 25px; 
       max-height: 540px; 
@@ -32,6 +33,7 @@
       padding: 20px 10px 20px 20px;
     }
     
+    /* 우측 휠 스크롤바 커스텀 */
     .result-scroll-box::-webkit-scrollbar { width: 10px; }
     .result-scroll-box::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 6px; }
     .result-scroll-box::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 6px; border: 2px solid #f1f1f1; }
@@ -50,12 +52,15 @@
     .p-date { text-align: center; font-size: 12.5px; color: #666; margin-bottom: 4px; }
     .p-giver { text-align: center; font-size: 13.5px; font-weight: bold; color: #222; }
 
+    /* 두 개의 버튼을 하단에 나란히 배치하기 위한 박스 */
     .card-btn-group { display: flex; gap: 6px; margin-top: 15px; }
     .copy-btn { flex: 1; padding: 9px 5px; cursor: pointer; border-radius: 4px; font-size: 11.5px; font-weight: bold; transition: 0.2s; box-sizing: border-box; text-align: center; border: 1px solid #ddd; background: #fff; }
     
+    /* 문구만 복사 (포인트 골드 스타일) */
     .btn-only-body { background: #fff; color: var(--gold); border: 1px solid var(--gold); }
     .btn-only-body:hover { background: var(--gold); color: #fff; }
     
+    /* 전체 복사 (차분한 그레이 네이비 스타일) */
     .btn-all-text { background: #f4f4f5; color: #444; border: 1px solid #ddd; }
     .btn-all-text:hover { background: var(--navy); color: #fff; border-color: var(--navy); }
   </style>
@@ -169,23 +174,9 @@ let selectedType = "감사패";
 let selectedTarget = "전체";
 let selectedLength = "200";
 
-function selectType(btn, val) { 
-  document.querySelectorAll('#type-group .cate-btn').forEach(b => b.classList.remove('active')); 
-  btn.classList.add('active'); 
-  selectedType = val; 
-}
-
-function selectTarget(btn, val) { 
-  document.querySelectorAll('#target-group .target-btn').forEach(b => b.classList.remove('active')); 
-  btn.classList.add('active'); 
-  selectedTarget = val; 
-}
-
-function selectLen(btn, val) { 
-  document.querySelectorAll('#len-group .len-btn').forEach(b => b.classList.remove('active')); 
-  btn.classList.add('active'); 
-  selectedLength = val; 
-}
+function selectType(btn, val) { document.querySelectorAll('#type-group .cate-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); selectedType = val; }
+function selectTarget(btn, val) { document.querySelectorAll('#target-group .target-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); selectedTarget = val; }
+function selectLen(btn, val) { document.querySelectorAll('#len-group .len-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); selectedLength = val; }
 
 async function requestAIText() {
   const keywords = document.getElementById('ai-keywords').value;
@@ -202,6 +193,7 @@ async function requestAIText() {
     dateInput = `${today.getFullYear()}년 ${today.getMonth() + 1}월 ${today.getDate()}일`;
   }
 
+  // 🔒 [안전 조치] 생성 버튼 글자를 바꾸고 비활성화하여 중복 클릭 원천 차단
   const submitBtn = document.getElementById('submit-btn');
   submitBtn.disabled = true;
   submitBtn.innerText = "🤖 문구를 생성하고 있습니다 (3~6초 소요)...";
@@ -224,31 +216,19 @@ async function requestAIText() {
     if (!response.ok) throw new Error('API 서버 에러');
     const data = await response.json();
     
-    // HTML의 id 이름표들
-    const htmlIds = ['formal', 'touching', 'creative'];
-    // 캡처 화면에서 확인된 서버의 실제 이름표들
-    const serverKeys = ['formal_version', 'touching_version', 'creative_version'];
+    const versions = ['formal', 'touching', 'creative'];
+    versions.forEach(v => {
+      document.getElementById(`type-${v}`).innerText = selectedType;
+      document.getElementById(`rcv-${v}`).innerText = receiverInput;
+      document.getElementById(`date-${v}`).innerText = dateInput;
+      document.getElementById(`gvr-${v}`).innerText = giverInput;
 
-    htmlIds.forEach((id, index) => {
-      // 상패 종류, 받는사람, 날짜, 주는사람 화면에 채우기
-      document.getElementById(`type-${id}`).innerText = selectedType;
-      document.getElementById(`rcv-${id}`).innerText = receiverInput;
-      document.getElementById(`date-${id}`).innerText = dateInput;
-      document.getElementById(`gvr-${id}`).innerText = giverInput;
-
-      // 해당 버전의 서버 이름표 가져오기
-      const serverKey = serverKeys[index];
-      let rawText = "";
+      let rawText = data[v] || "";
       
-      // 데이터가 정상적으로 왔고, 그 안에 content(본문)가 있는지 확인
-      if (data[serverKey] && data[serverKey].content) {
-        rawText = data[serverKey].content;
-      } else {
-        rawText = "문구를 불러오는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
-      }
-      
-      // 가져온 본문 텍스트를 화면에 출력
-      document.getElementById(`body-${id}`).innerText = rawText.trim();
+      // 모든 상패 종류에서 외부에 별도로 들어가는 상/하단 정보 고정 정보(종류, 받는사람, 날짜, 주는사람)를 본문 영역에서 도려내어 중복 노출을 방지합니다.
+      // 학위패일 경우 내부에 세팅된 '논문명:' 구조가 온전히 유지될 수 있도록 정상 필터링 처리합니다.
+      rawText = rawText.replace(selectedType, "").replace(receiverInput, "").replace(dateInput, "").replace(giverInput, "");
+      document.getElementById(`body-${v}`).innerText = rawText.trim();
     });
 
     document.getElementById('result-area').style.display = 'block';
@@ -257,6 +237,7 @@ async function requestAIText() {
     console.error(e);
     alert('AI 연산 중 일시적인 지연이 발생했습니다. 잠시 후 다시 시도해 주세요.'); 
   } finally {
+    // 🔓 처리가 완료되면 버튼을 다시 활성화 상태로 롤백
     submitBtn.disabled = false;
     submitBtn.innerText = "AI 문구 생성하기";
   }
