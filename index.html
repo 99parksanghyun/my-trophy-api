@@ -13,7 +13,9 @@
     
     .btn-group { margin-bottom: 12px; }
     button.cate-btn, button.target-btn, button.len-btn { padding: 7px 12px; margin: 2px; border: 1px solid #ddd; background: #fff; cursor: pointer; border-radius: 4px; transition: 0.3s; font-size: 12.5px; }
-    button.active { background: var(--navy); color: #fff; border-color: var(--navy); font-weight: bold; }
+    
+    /* 선택된 버튼 스타일 강력 적용 */
+    button.active { background: var(--navy) !important; color: #fff !important; border-color: var(--navy) !important; font-weight: bold !important; }
     
     .vertical-input { width: 100%; padding: 10px 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 13.5px; margin-bottom: 3px; }
     textarea { width: 100%; height: 110px; padding: 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; resize: none; font-size: 13.5px; line-height: 1.5; }
@@ -170,19 +172,19 @@ let selectedTarget = "전체";
 let selectedLength = "200";
 
 function selectType(btn, val) { 
-  document.querySelectorAll('#type-group .cate-btn').forEach(b => b.classList.remove('active')); 
+  document.querySelectorAll('.cate-btn').forEach(b => b.classList.remove('active')); 
   btn.classList.add('active'); 
   selectedType = val; 
 }
 
 function selectTarget(btn, val) { 
-  document.querySelectorAll('#target-group .target-btn').forEach(b => b.classList.remove('active')); 
+  document.querySelectorAll('.target-btn').forEach(b => b.classList.remove('active')); 
   btn.classList.add('active'); 
   selectedTarget = val; 
 }
 
 function selectLen(btn, val) { 
-  document.querySelectorAll('#len-group .len-btn').forEach(b => b.classList.remove('active')); 
+  document.querySelectorAll('.len-btn').forEach(b => b.classList.remove('active')); 
   btn.classList.add('active'); 
   selectedLength = val; 
 }
@@ -207,7 +209,7 @@ async function requestAIText() {
   submitBtn.innerText = "🤖 문구를 생성하고 있습니다 (3~6초 소요)...";
 
   try {
-    console.log("① [전송 시작] 서버로 보낼 매개변수들:", {
+    console.log("① [전송 시작] 서버로 보낼 데이터:", {
       type: selectedType, target: selectedTarget, message: keywords, maxLength: selectedLength, receiver: receiverInput, date: dateInput, giver: giverInput
     });
 
@@ -225,11 +227,11 @@ async function requestAIText() {
       })
     });
     
-    console.log("② [서버 응답 통과] HTTP 상태코드:", response.status);
-    if (!response.ok) throw new Error('API 서버 내부 응답 실패 (500 혹은 404)');
+    console.log("② [서버 응답] HTTP 상태코드:", response.status);
+    if (!response.ok) throw new Error('API 서버 내부 응답 실패');
     
     const data = await response.json();
-    console.log("③ [데이터 파싱 성공] 서버에서 전송받은 실제 data 객체 구조:", data);
+    console.log("③ [데이터 파싱] 서버 응답 객체 구조:", data);
     
     const htmlIds = ['formal', 'touching', 'creative'];
     const serverKeys = ['formal_version', 'touching_version', 'creative_version'];
@@ -243,25 +245,67 @@ async function requestAIText() {
       const serverKey = serverKeys[index];
       let rawText = "";
       
-      // 어떤 형태로 데이터가 와도 깨지지 않도록 다중 방어막 가동
       if (data && data[serverKey]) {
         rawText = data[serverKey].content || data[serverKey].text || "";
-        console.log(`-> [${id}] 매칭 성공 본문:`, rawText);
+        console.log(`-> [${id}] 매칭 성공:`, rawText);
       } 
       
       if (!rawText) {
         if (typeof data === 'string') {
           rawText = data;
         } else {
-          rawText = "서버 데이터 구조가 예상과 다릅니다. F12 콘솔창의 ③번 로그를 찍어서 확인해주세요.";
+          rawText = "서버 데이터 구조가 예상과 다릅니다. F12 콘솔창을 확인해주세요.";
         }
       }
       
       document.getElementById(`body-${id}`).innerText = rawText.trim();
     });
 
-    console.log("④ [화면 출력 완료] 결과 창 블록 처리 적용 완료");
-    document.getElementById('result-area').style.style.cssText = 'display: block !important;';
+    console.log("④ [화면 출력 완료] 결과 창 표시");
+    // 오타 수정 완료 구역 (에러 원인 해결)
+    document.getElementById('result-area').style.display = 'block';
 
   } catch (e) { 
-    console.error("❌ 처리 중 중단됨 - 에러 로그:", e);
+    console.error("❌ 에러 발생 로그:", e);
+    alert('오류가 발생했습니다. F12 콘솔창의 빨간 로그를 확인해 주세요.'); 
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.innerText = "AI 문구 생성하기";
+  }
+}
+
+function copyOnlyBody(id) {
+  const bodyText = document.getElementById(`body-${id}`).innerText.trim();
+  executeCopy(bodyText, '추천 본문 문구만 복사되었습니다!');
+}
+
+function copyAllText(id) {
+  const type = document.getElementById(`type-${id}`).innerText.trim();
+  const rcv = document.getElementById(`rcv-${id}`).innerText.trim();
+  const body = document.getElementById(`body-${id}`).innerText.trim();
+  const date = document.getElementById(`date-${id}`).innerText.trim();
+  const gvr = document.getElementById(`gvr-${id}`).innerText.trim();
+  const fullText = `${type}\n\n${rcv}\n\n${body}\n\n${date}\n${gvr}`;
+  executeCopy(fullText, '상패 전체 시안 서식이 통째로 복사되었습니다!');
+}
+
+function executeCopy(text, successMsg) {
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.style.top = '0';
+  textarea.style.left = '0';
+  textarea.style.position = 'fixed';
+  document.body.appendChild(textarea);
+  textarea.focus();
+  textarea.select();
+  try {
+    document.execCommand('copy');
+    alert(successMsg);
+  } catch (err) {
+    navigator.clipboard.writeText(text).then(() => { alert(successMsg); });
+  }
+  document.body.removeChild(textarea);
+}
+</script>
+</body>
+</html>
