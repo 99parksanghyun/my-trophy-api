@@ -14,7 +14,6 @@
     .btn-group { margin-bottom: 12px; }
     button.cate-btn, button.target-btn, button.len-btn { padding: 7px 12px; margin: 2px; border: 1px solid #ddd; background: #fff; cursor: pointer; border-radius: 4px; transition: 0.3s; font-size: 12.5px; }
     
-    /* 선택된 버튼 스타일 강력 적용 */
     button.active { background: var(--navy) !important; color: #fff !important; border-color: var(--navy) !important; font-weight: bold !important; }
     
     .vertical-input { width: 100%; padding: 10px 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 13.5px; margin-bottom: 3px; }
@@ -209,10 +208,6 @@ async function requestAIText() {
   submitBtn.innerText = "🤖 문구를 생성하고 있습니다 (3~6초 소요)...";
 
   try {
-    console.log("① [전송 시작] 서버로 보낼 데이터:", {
-      type: selectedType, target: selectedTarget, message: keywords, maxLength: selectedLength, receiver: receiverInput, date: dateInput, giver: giverInput
-    });
-
     const response = await fetch('/api/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -227,42 +222,39 @@ async function requestAIText() {
       })
     });
     
-    console.log("② [서버 응답] HTTP 상태코드:", response.status);
     if (!response.ok) throw new Error('API 서버 내부 응답 실패');
     
     const data = await response.json();
     console.log("③ [데이터 파싱] 서버 응답 객체 구조:", data);
     
     const htmlIds = ['formal', 'touching', 'creative'];
-    const serverKeys = ['formal_version', 'touching_version', 'creative_version'];
 
-    htmlIds.forEach((id, index) => {
+    htmlIds.forEach((id) => {
       document.getElementById(`type-${id}`).innerText = selectedType;
       document.getElementById(`rcv-${id}`).innerText = receiverInput;
       document.getElementById(`date-${id}`).innerText = dateInput;
       document.getElementById(`gvr-${id}`).innerText = giverInput;
 
-      const serverKey = serverKeys[index];
+      // ★ 핵심 수정 부분: 서버가 formal_version을 주든 formal을 주든 모두 호환!
+      const serverData = data[`${id}_version`] || data[id];
       let rawText = "";
       
-      if (data && data[serverKey]) {
-        rawText = data[serverKey].content || data[serverKey].text || "";
-        console.log(`-> [${id}] 매칭 성공:`, rawText);
+      if (serverData) {
+        rawText = serverData.content || serverData.text || "";
       } 
       
+      // 혹시라도 서버 응답 구조가 완전히 다른 문자열 형태일 경우를 대비한 안전장치
       if (!rawText) {
         if (typeof data === 'string') {
           rawText = data;
         } else {
-          rawText = "서버 데이터 구조가 예상과 다릅니다. F12 콘솔창을 확인해주세요.";
+          rawText = "문구를 성공적으로 가져오지 못했습니다. 다시 시도해주세요.";
         }
       }
       
       document.getElementById(`body-${id}`).innerText = rawText.trim();
     });
 
-    console.log("④ [화면 출력 완료] 결과 창 표시");
-    // 오타 수정 완료 구역 (에러 원인 해결)
     document.getElementById('result-area').style.display = 'block';
 
   } catch (e) { 
