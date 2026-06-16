@@ -227,6 +227,7 @@ async function requestAIText() {
     const htmlIds = ['formal', 'touching', 'creative'];
 
     htmlIds.forEach((id) => {
+      // 1. 유저가 직접 입력한 정보 꽂아넣기
       document.getElementById(`type-${id}`).innerText = selectedType;
       document.getElementById(`rcv-${id}`).innerText = receiverInput;
       document.getElementById(`date-${id}`).innerText = dateInput;
@@ -234,10 +235,10 @@ async function requestAIText() {
 
       let rawText = "";
       
-      // 1. 예상되는 온갖 변수명 다 찔러보기 (AI가 만들어낼 법한 모든 이름표)
+      // 2. AI가 보내준 데이터 블록 찾기
       let serverData = data[`${id}_version`] || data[id] || data[`${id}Version`];
       
-      // 2. 한글로 대답했을 경우 방어
+      // 혹시 한글로 줬을 경우 방어
       if (!serverData && id === 'formal') serverData = data['정중한'] || data['정중한버전'] || data['정중한_버전'];
       if (!serverData && id === 'touching') serverData = data['감동적인'] || data['감동적인버전'] || data['감동적인_버전'];
       if (!serverData && id === 'creative') serverData = data['개성적인'] || data['개성적인버전'] || data['개성적인_버전'];
@@ -246,26 +247,34 @@ async function requestAIText() {
         if (typeof serverData === 'string') {
           rawText = serverData;
         } else if (typeof serverData === 'object') {
-          rawText = serverData.content || serverData.text || JSON.stringify(serverData);
+          // 🔥 핵심 수정 사항: AI가 '본문', '내용' 등의 한글 이름표를 달아놨을 때도 쏙 빼오기
+          rawText = serverData.content || serverData.text || serverData['본문'] || serverData['내용'] || serverData['문구'] || serverData.body || "";
+          
+          // 🔥 초강력 방어: 그래도 못 찾았다면? 객체 안에서 '가장 긴 텍스트'를 강제로 찾아서 본문으로 간주합니다.
+          if (!rawText || rawText.trim() === "") {
+            let longestString = "";
+            for (let key in serverData) {
+              if (typeof serverData[key] === 'string' && serverData[key].length > longestString.length) {
+                longestString = serverData[key];
+              }
+            }
+            rawText = longestString;
+          }
         }
       }
 
-      // 3. 최후의 수단: 어떻게 해도 못 찾았다면?
+      // 3. 최후의 수단 (진짜 아무것도 안 잡혔을 때)
       if (!rawText || rawText.trim() === "") {
         if (id === 'formal') {
-          // 정중한 버전 칸에다가 서버가 준 전체 데이터를 텍스트로 박제시켜버립니다.
           let rawString = typeof data === 'object' ? JSON.stringify(data, null, 2) : String(data);
-          
-          // 쓸데없는 괄호나 쌍따옴표 같은 기호들을 지워서 일반 텍스트처럼 보이게 다듬기
           rawString = rawString.replace(/[{}"\[\]]/g, '').replace(/,/g, '\n').replace(/\\n/g, '\n').trim();
-          
           rawText = "[알림: AI가 응답 형식을 어겼으나 내용을 강제로 추출했습니다]\n\n" + rawString;
         } else {
-          // 감동, 개성 칸에는 안내 문구
           rawText = `[안내] AI가 이 버전은 따로 만들어주지 않고 하나의 문구로 합쳐서 대답했습니다. 옆의 '정중한 버전' 칸을 확인해주세요.`;
         }
       }
       
+      // 본문 칸에 최종 텍스트만 깔끔하게 출력
       document.getElementById(`body-${id}`).innerText = rawText.trim();
     });
 
